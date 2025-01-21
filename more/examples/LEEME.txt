@@ -1,0 +1,1 @@
+Los dos ejemplos usan los valores estándar del editor de mapas

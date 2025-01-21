@@ -1,0 +1,1 @@
+The two examples use the map editor's default values

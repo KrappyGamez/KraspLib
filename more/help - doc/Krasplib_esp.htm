@@ -1,0 +1,1039 @@
+<html>
+
+<body>
+<h1>
+KraspLib ver 0.16 Beta
+</h1>
+<br>
+(C) KrappyGamez 2025 - krappygamez (arroba) gmx.com
+<br>
+<br>
+
+Index:
+<br>
+<pre>
+<a href="#whatis">¿Qué es KraspLib?</a>
+  <a href="#introduction">Introducción</a>
+  <a href="#itshisanengine">Entonces.. ¿Es esto un engine?</a>
+  <a href="#capableof">¿Qué puede hacer?</a>
+  <a href="#shouldiuseit">¿Por qué debería usarlo?</a>
+  <a href="#license">¿Qué hay de la licencia?</a>
+<a href="#howitworks">Cómo funciona</a>
+  <a href="#needtoknow1">Lo que tienes que saber (lo básico)</a>
+  <a href="#neetoknow2">Más cosas que tienes que saber (el editor de mapas)</a>
+  <a href="#dontneedtoknow">Lo que NO necesitas saber (detalles en profundidad)</a>
+<a href="#gettingstarted">Empezando</a>
+  <a href="#settingallup">Poniendo todo a punto (y el típico "¡Hola mundo!")</a>
+  <a href="#beforegame">Antes de que el juego comience</a>
+  <a href="#ingame">El bucle de juego</a>
+<a href="#examples">Ejemplos completos</a>
+<a href="#finaltips">Unos consejos finales</a>
+<a href="#reference">Referencia</a>
+</pre>
+<br>
+<br>
+<h2>
+<a name="whatis"></a>
+¿Qué es KraspLib?
+</h2>
+<br>
+<h3>
+<a name="introduction"></a>
+Introducción
+</h3>
+<br>
+KraspLib es una librería de software para el desarrollo de juegos para ZX Spectrum. Proporciona funcionalidad para mostrar sprites, dibujar mapas, detección de colisiones y algunas cosas más. También viene con un editor de mapas.
+<br>
+<br>
+Es el resultado de mi experiencia adquirida en los últimos años desarrollando para Spectrum como aficionado. Después de varios planteamientos, decidí hacer una librería equilibrada que pudiera usar para mis futuros proyectos y, de paso, ponerla a disposición de cualquiera. Estaría bien que alguien con talento artístico (no como yo) creara una obra maestra con esto.
+<br>
+<br>
+KraspLib está diseñado para ser utilizado con el compilador Boriel ZX Basic. Además, se proporcionan algunos recursos gráficos, aunque seguramente querrás crear los tuyos propios, ya que no soy buen grafista. En cualquier caso, los gráficos incluidos están en formato SevenUP pero puedes usar cualquier otra herramienta para crear los tuyos propios, siempre que puedas exportarlos a binario.
+<br>
+<br>
+Dado que la librería no tiene ejecutables en sí, y el editor de mapas es en realidad una página web local, puedes usar el sistema operativo que prefieras siempre que el software de terceros requerido sea compatible. Sin embargo, en esta documentación todas las indicaciones se centrarán en Windows, simplemente porque es a lo que estoy acostumbrado. si usas LINUX o cualquier otro sistema, probablemente puedas apañarte por tu cuenta.. pero siento las molestias..
+<br>
+<br>
+<strong>
+Ten en cuenta que se trata de una versión beta y está sujeta a cambios, errores, correcciones de errores, mejoras, etc.
+</strong> pero por supuesto, los comentarios son bienvenidos. Puedes enviar tus comentarios a krappygamez (arroba) gmx.com
+<strong>Ten en cuenta que el código fuente es terriblemente sucio. Tal vez algún día me ponga a limpiarlo, pero por el momento es como es. Al menos traté de hacer la interfaz y los ejemplos lo más limpios posibles</strong>
+<br>
+<br>
+<h3>
+<a name="itshisanengine"></a>
+Entonces.. ¿Es esto un engine?
+</h3>
+<br>
+Bueno, depende del concepto de engine que tengas. La librería proporciona funcionalidad para simplificar las tareas difíciles, pero no permite crear un juego solo proporcionando assets, definiendo algunos objetos, ajustando muchos parámetros y añadiendo algunos scripts. Vas a tener que picar código de verdad para que funcione, con todas las cosas buenas y malas que trae:
+<br><ul><li>
+Flexibilidad, adaptabilidad y la satisfacción de programar un juego uno mismo, pero también..
+<br></li><li>
+El enfrascamiento mental buscando soluciones, la frustración cuando las cosas no salen, la búsqueda y eliminación de bugs, etc.</li></ul>
+<br>
+<br>
+Personalmente prefiero considerarlo un engine, pero posiblemente por razones de marketing.. y el logo queda chulo, ¿no?
+<br><br>
+<img src="img/logo2x.png"></img>
+<br>
+<br>
+<h3>
+<a name="capableof"></a>
+¿Qué puede hacer?
+</h3>
+<br>
+KraspLib está diseñado para funcionar en máquinas de 48k, pero si sabes lo que estás haciendo, es relativamente fácil apañarlo para aprovechar los modelos de 128k (básicamente RAM adicional por paginación y música AY). El objetivo es proporcionar una funcionalidad equilibrada que pueda adaptarse a la mayoría de los casos utilizando la menor cantidad de recursos posibles. Cuenta con:
+<br><ul>
+<li>Hasta 8 sprites de 16x16 píxeles, con color de tinta opcional<br></li>
+<li>Hasta 8 puntos (2x2 píxeles) también con color de tinta opcional<br></li>
+<li>Sistema de mapas basado en bloques que puede albergar hasta 256 pantallas<br></li>
+<li>Hasta 256 tiles (16x16 tiles de 8x8 píxeles) para el mapa, cada uno con su atributo de color predeterminado<br></li>
+<li>Detección de colisiones entre sprites y/o puntos, así como con bloques de mapa<br></li>
+<li>Renderizado fácil: define los sprites y los puntos y llama a una función para dibujar todo<br></li>
+<li>Gestión de la entrada, con soporte Kempston y teclas redefinibles<br></li>
+<li>Un puñado de efectos de sonido estándar<br></li>
+<br></ul>
+A plena carga (todos los sprites y puntos con tinta definida) el engine funciona a unos 16 - 17 fps, pero cae rápidamente a unos 12 - 13 a medida que se añade la lógica de juego. Si usas solo 5 o 6 sprites como máximo, sin tinta, y tal vez uno o dos puntos, con una lógica simple para mover el juego, probablemente obtendrás entre 20 y 25 fps, lo que no está mal teniendo en cuenta las limitaciones del sistema.
+<br>
+<br>
+Por otro lado, hay algunos inconvenientes / carencias / cosas a mejorar:
+<br><ul>
+<li>Los sprites no son 100% libres de parpadeo, aunque este es mínimo y debería ser aceptable dadas las limitaciones del sistema<br></li>
+<li>Los sprites no usan máscaras y se basan en la superposición xor. Esto permite una pequeña mejora en el rendimiento y ahorra una cantidad significativa de memoria, pero no queda bien en fondos detallados<br></li>
+<li>El editor de mapas es bastante engorroso y no es completamente what-you-see-is-what-you-get<br></li>
+<li>No es compatible con tipos de letra personalizados. Sin embargo, si estás familiarizado con Boriel Basic, probablemente sabrás cómo hacerlo, y puedes incluir el tipo de letra como parte del tileset si quieres<br></li>
+<li>No hay soporte para música AY / Beeper. Sin embargo, puedes utilizar una solución de terceros (como Beepola o Vortex), aunque puede ser complicado si necesitas usar interrupciones<br></li>
+<li>Es posible que la detección de colisiones no se adapte bien a todos los casos y puede que no sea la más eficiente (pero, de nuevo, puedes currarte la tuya propia)<br></li>
+<li>No hay soporte para joystick Sinclair (qué más da, puedes redefinir las teclas...)<br></li>
+<li>Los sprites y los puntos se alinean en píxeles pares (en la mayoría de los casos tampoco es un problema,y sigue siendo mejor que usar "medios caracteres")<br></li>
+<li>No se soporta clipping para los sprites (los sprites no pueden estar parcialmente fuera del área de dibujo)</li>
+</ul>
+<br>
+<h3><a name="shouldiuseit"></a>
+¿Por qué debería usarlo?
+</h3>
+<br>
+Esta es solo otra opción si tienes la intención de desarrollar software para el viejo Spectrum. Como probablemente sabrás, cada opción tiene sus propias ventajas y desventajas, así como sus características únicas y su "look & feel". Este engine está dirigido a personas a las que les gusta/saben/tienen la intención de programar pero sin las dificultades de tener que lidiar con un hardware tan peculiar a bajo nivel. Boriel ZX Basic es una gran opción, ya que es casi tan potente como C, pero sigue siendo Basic, por lo que no espantará a los novatos. Sin embargo, es muy recomendable comprender los conceptos básicos de cómo funcionan estas máquinas antiguas, en especial:<br><ul>
+<li>Qué es el binario, el hexadecimal y las operaciones de bits<br></li>
+<li>Cómo carga el Spectrum los datos desde cinta<br></li>
+<li>Cómo maneja el Spectrum la memoria<br></li>
+<li>Para usuarios avanzados, como funcionan las interrupciones, la paginación de memoria, las variables del sistema, etc.<br></li>
+<li>De nuevo para usuarios avanzados, ensamblador de Z80 (si necesitas optimizar algunas partes del programa)<br></li></ul>
+<br>
+
+<h3><a name="license"></a>
+¿Qué hay de la licencia?
+</h3>
+<br>
+KraspLib se publica bajo una licencia MIT, lo que significa que básicamente puedes hacer con él cualquier cosa razonable que quieras. En teoría, la licencia requiere informar sobre el aviso de derechos de autor. En realidad me da un poco igual siempre y cuando no te atribuyas mi trabajo, pero agradecería que mencionases el uso de la librería. Puedes hacerlo añadiendo el logotipo a tu juego.
+<br><br>
+<img src="img/logo2x.png"></img>
+<br>
+<br>
+<br>
+<h2><a name="howitworks"></a>
+Cómo funciona
+</h2>
+<br>
+<h3><a name="needtoknow1"></a>
+Lo que tienes que saber (lo básico)
+</h3>
+<br>
+La librería se compone de dos partes: un núcleo, escrito completamente en ensamblador de Z80 y cargado como datos en una posición de memoria fija, y un envoltorio, escrito en Basic y ensamblador, para ser incluido en su programa con la directiva #include.<br>
+<br>
+El núcleo contiene las partes críticas del código, así como sus variables internas. Pesa alrededor de 3 kb y también requiere otros 3 kb adicionales para búferes y arrays. El núcleo termina en la posición de memoria 0xbfff (49151 decimal) justo antes de la página intercambiable en los modelos de 128k. La memoria adicional necesaria para el núcleo se asigna justo antes, de modo que se reserva la memoria entre 0xa7bc y 0xbfff.<br>
+<br>
+El envoltorio pesa entre 1 y 2 kb y se utiliza para servir como interfaz entre el programa y el núcleo, y también añade algunas funcionalidades no críticas (y opcionales). puesto que se compila con la opción -O2, los componentes no utilizados no se incluirán en el programa compilado, ahorrando unos pocos bytes de memoria. Esto también significa que se mostrarán muchas advertencias como resultado de la compilación, pero eso es de esperar.<br>
+<br>
+Ahora, por defecto se utilizará un cargador que ajustará la variable RAMTOP en la posición de memoria 0x5eff (24319 en decimal). Eso significa que la memoria disponible para el programa comienza en la posición 0x5f00 (24320 en decimal). Normalmente, el punto de entrada del programa (entry point) estará en el mismo sitio, pero no es obligatorio (de hecho, puedes tener buenas razones para no hacerlo). Aparte de eso, tendrás que elegir en qué posiciones de memoria se colocarán tus assets, pero no te preocupes, el engine (en este caso, la herramienta de edición de mapas) te ayudará (se explicará más adelante).<br>
+<br>
+Con los valores por defecto, el mapa de memoria será más o menos así:<br>
+<br>
+<code>
+0x0000 - 0x3fff : ROM<br>
+0x4000 - 0x5aff : RAM de vídeo<br>
+0x5aff - 0x5cca : Variables del sistema<br>
+0x5ccb - 0x5eff : Reservado para probrama basic, pila, etc. Termina en RAMTOP<br>
+0x5f00 - ?????? : Programa KraspLib de usuario (incluye el envoltorio)<br>
+?????? - 0xa7bb : Posible RAM no usada y disponible<br>
+0xa7bc - 0xb3d9 : Búferes de KraspLib<br>
+0xb3da - 0xbfff : Núcleo y variables de KraspLib<br>
+0xc000 - ?????? : Datos del mapa (asset)<br>
+?????? - 0xeaff : Posible RAM no usada y disponible<br>
+0xeb00 - 0xf6ff : Spriteset (asset)<br>
+0xf700 - 0xfeff : Tileset (asset)<br>
+0xff00 - 0xffff : Atributos del tileset (asset)<br>
+</code>
+<br>
+<i><strong>Importante:</strong><br>
+Por defecto, el Spectrum usa el final de la memoria (desde 0xff58 en adelante) para los UDG. Lo normal es que no los necesites pero de no ser así tendrs que ajustar la ubicación / tamaño de los assets.</i>
+<br>
+<br>
+Lo primero que hay que hacer es llamar a ks_kraspInit() para borrar todos los búferes y variables internas. Una vez hecho esto, hay que asignar los punteros de los assets a las direcciones donde se encuentren. Estas son las variables globales que hay que asignar:<br>
+<br>
+<code>
+kv_spraddr -> Dirección del spriteset<br>
+kv_mapaddr -> Dirección de los datos del mapa<br>
+kv_tilesetaddr -> Dirección del tileset<br>
+kv_tilesetattraddr -> Dirección de los atributos del tileset<br>
+</code>
+<br>
+Todas definidas como uintegers.<br>
+<br>
+<i><strong>Importante:</strong><br>
+Los datos del mapa no son reubicables: hay que definir en el editor de mapas en qué dirección se van a colocar antes de exportar. Por otro lado, puedes usar más de un bloque de datos de mapa: en modelos de 128k, puedes usar la paginación de memoria para almacenar más bloques (tal vez con su propio tileset) en diferentes páginas de 16k.<br></i>
+<br>
+Lo mostrado arriba es usando la configuración por defecto pero puede elegir otro preset o personalizar el mapa de memoria según convenga. Si vas a usar paginación de memoria (para 128k) acuerdate de restaurar la página correspondiente cuando sea necesario. Dado que las variables y los búferes no están en la página de memoria conmutable, puedes esperar sin problema hasta que haya que procesar el frame.
+<br><br>
+Una vez configuradas las variables, es posible "cargar" las pantallas del mapa. Para ello, lo recomendable es llamar a ks_decodeScreen(). Esto lleva a cabo el proceso completo de carga de una pantalla y hace lo siguiente:<br>
+- Primero, decodifica los gráficos ráster (los pixeles) de la pantalla. El número de cada tile en pantalla se copia en el búfer de decodificación y luego se "vuelca" en la pantalla tile a tile (va "pintando" cada tile en pantalla).<br>
+- Después, los atributos de cada celda se decodifican (segundo paso) de la misma manera. El mismo búfer se usa para almacenar los atributos y luego estos se copian en la pantalla dando el color. Además, el valor ink del atributo se vuelca en otro búfer (el "búfer de atributos comprimidos" o "crhunched attrib buffer") condensado para ahorrar RAM. Esto permitirá personalizar la tinta de los sprites y después restaurar lo que hubiera en pantalla.<br>
+- Finalmente, se decodifican los datos asociados a bloques y se dejan en el búfer. Esto será útil para la detección de colisiones, permitiendo definir paredes, trampas, objetos para recoger, etc.
+<br>
+Es posible ejecutar estos pasos por separado si necesita hacer algún procesamiento intermedio, pero no se recomienda. Consulta la referencia para más detalles..<br><br>
+Para el dibujado de sprites y puntos solo hay que definirlos en los arrays globales correspondientes:<br><br><code>
+kv_spritedefs(32) -> Lista de 8 sprites, cuatro bytes cada uno: El sprite 0 ocupa los bytes 0 a 3 del array, el sprite 1 ocupa del 4 al 7 y así sucesivamente.<br><br></code>
+El primer byte el el descriptor y permite marcarlo como activo o no, la "afinidad" (se explicará más adelante) y el color de la tinta si aplica. Los siguientes dos bytes definen las coordenadas X,Y en la pantalla, y el último define el gráfico de sprites a utilizar.<br><br><code>
+kv_dotdefs(32) -> Funciona igual que el array de sprites pero para puntos de 2x2. El último byte no se usa por lo que puedes disponer de el (por ejemplo, para guardar la dirección de una bala).<br><br></code>
+<i><strong>Importante:</strong><br>
+KraspLib utiliza dos sistemas de coordenadas: las coordenadas "char" y las coordenadas "pseudopixel". Las coordenadas Char se refieren a tiles y son equivalentes a una celda de 8x8 píxeles, por lo que van de 0 a 31 para el eje X y de 0 a 23 (en realidad 21, ya que no se usan las dos líneas inferiores) para el eje Y. Las coordenadas de pseudopíxel hacen referencia a píxeles en posiciones pares, de modo que un valor de n pseudipíxeles equivale a 2n píxeles, con valores de 0 a 127 para el eje X y de 0 a 87 para el eje Y. Para traducir de uno a otro solo hay que hacer un desplazamiento de 2 bits. En la referencia se puede comprobar qué tipo de coordenadas se utiliza en cada caso.<br><br>
+<strong>Importante:</strong><br>
+Además, presta atención a los índices cuando manejes los spritedefs y dotdefs. La mayoría de las funciones que requieren un índice de estos arrays como parámetro se refieren a la posición del elemento en el array, es decir, si te refieres al cuarto sprite (sprite número 3) tendrás que pasar 12 como parámetro a la función /sub.<br>
+<br></i>
+Una vez que hayas definido los sprites y puntos querrás usarlos para, por ejemplo, mover un sprite, disparar una bala (usando un punto), etc. Solo tienes que cambiar los valores (las coordenadas para cambiar su ubicación, el número de gráfico del sprite para la animación, etc.). Si necesitas detectar colisiones tendrás que proceder de la siguiente manera:<br><ul>
+<li>Actualizar las coordenadas del elemento<br></li>
+<li>Compruebar si hay colisiones (se explicará más adelante)<br></li>
+<li>Si no hay colisión, continuamos. Si hay colisión, ejecutamos la acción correspondiente (por ejemplo, recuperar las coordenadas anteriores si se choca contra una pared)</li></ul><br>
+Y ahora, faltaría dibujar todos los elementos. Para eso, simplemente hay que llamar a ks_drawFrame()<br><br>
+<i><strong>Importante:</strong><br>
+No se soporta clipping: asegurate que los speites no se salen por los bordes<br>
+<br></i>
+Además, tendrás que procesar la entrada (teclado o kempston) y sincronizar el ritmo del juego. ks_syncWait() lo hace, haciendo una espera de un mínimo de frames para mantener una velocidad constante. Por lo general, querrás limitar la acción a 25 o 17 fps (si sobrecarga el engine, la velocidad bajará, pero probablemente tendrá poco impacto en la jugabilidad). Al mismo tiempo, los datos de entrada se actualizarán y se presentarán en las variables globales kv_userinput y kv_userinputpulse (más detalles más adelante).<br><br>
+<i><strong>Importante:
+</strong><br>
+ks_syncWait() se basa en la variable de sistema de contador de frames. De hecho, pone el byte menos significativo a cero. Esto interferirá con cualquier código que dependa de esa variable para calcular el tiempo, por lo que si es el caso, tendras que trabajarte una alternativa. Además, si vas a utilizar una rutina de interrupción personalizada (por ejemplo, para reproducir música  AY), tendrás que actualizar la variable o llamar a la rutina original al final.<br>
+<br></i>
+Por último, puedes reproducir algunos efectos de sonido estándar con ks_playSFX(). Para generar sonidos personalizados puedes usar ks_genericSound() (usada internamente por ks_playSFX() )<br><br>
+<i><strong>Importante:</strong><br>
+Las llamadas para efectos de sonido hacen que el borde se vuelva negro. Se recomienda mantenerlo negro continuamente pero si prefieres usar otro color, recuerda restablecer el borde después de las llamadas.<br></i>
+<br>
+
+
+
+
+
+
+
+<br>
+<h3><a name="neetoknow2"></a>
+Más cosas que tienes que saber (el editor de mapas)
+</h3>
+<br>
+El editor de mapas es una página web offline escrita en html / javascript. Funciona, pero es engorrosa y no muy amigable. Aún así, el concepto no es difícil de entender y seguramente te acostumbrarás a usarlo pronto. Solo es "what you see is what you get" en parte (no muestra flash ni atributos personalizados)<br><br>
+Se basa en definiciones de bloques ordenadas por profundidad (orden del eje z, o "z order") por lo que los bloques del frente ocultan (total o parcialmente) los bloques de detrás. Una vez definido un bloque, puedes cambiar sus propiedades (excepto el número de tile, la ubicación y el tamaño, en ese caso hay que borrarlo y crear uno nuevo) empujarlo hacia el fondo o traerlo al frente. También permite la creación de un cargador tap para el juego.<br><br>
+Este es el aspecto y la descripción del editor:<br><br>
+<img src="img/editor_1.png"></img><br><br>
+1 - Área de definición de bloques: Crea aquí los bloques haciendo clic y arrastrando con el ratón. Pincha en un bloque para seleccionarlo.<br>
+2 - Parte inferior del área de definición: Estas dos líneas inferiores NO deben usarse. Están reservadas para posibles usos alternativos o futuros. En el juego real, lo más probable es que pongas ahí el HUD.<br>
+3 - Menú de datos generales: Permite las acciones RESET (Borra TODO el mapa) CLEAR (Borra la pantalla actual) LOAD (Carga un mapa mediante pegado de texto) SAVE (Guarda el mapa en el portapapeles como texto) EXPORT (Exporta el mapa al portapapeles como código fuente en ensamblador) o DOWNLOAD BIN (Exporta como un archivo bin listo para ser empaquetado en un archivo tap).<br>
+4 - Selector de tiles: Pincha en un tile aquí antes de definir un bloque.<br>
+5 - Navegador de bloques: Usa "izquierda" y "derecha" para seleccionar un bloque. Usa "arriba" para llevar al fondo y "abajo" para traer al frente. Usa "X" para eliminar y "O" para actualizar sus propiedades.<br>
+6 - Valores de las propiedades del bloque: Muestra las propiedades actuales del bloque seleccionado. Si los modificas tienes que pulsar "O" para aplicar los cambios. Más adelante se explicarán más detalles sobre las propiedades.<br>
+7 - Definiciones de assets: Indica las posiciones de memoria de los assets del juego. Además, puedes exportar al portapapeles un conveniente sub init() para agregar al código fuente  con las definiciones, descargar un cargador preparado para los valores definidos y agregar un archivo de pantalla opcional para el cargador.<br>
+8 - Selector de preset para assets: Establece un perfil específico de definiciones para los assets. También puedes poner a mano valores personalizados.<br>
+9 - Navegador de páginas: Permite cambiar la página mostrada (la pantalla). Los botones "arriba" y "abajo" aplican un incremento / decremento de 16.
+<br>
+<br>
+<i><strong>Importante:</strong><br>
+Al exportar un mapa, se ignorará cualquier pantalla a partir de la primera pantalla vacía. Añade un bloque espurio en cada pantalla vacía si es necesario.
+<br>
+<br>
+<strong>Importante:</strong><br>
+Recuerda no utilizar las dos líneas inferiores del área de definición de bloques. Corromperá los datos del juego y lo más probable es que se cuelgue.
+<br>
+<br>
+<strong>Importante:</strong><br>
+El editor no permite "deshacer" y no te avisará si lo cierras sin guardar, ¡ten cuidado!
+<br>
+<br>
+
+<strong>Importante:</strong><br>
+El primer tile en el selector de tiles (esquina superior izquierda) está reservado como "en blanco" y debe tener todos sus bytes ráster a en 0 y el atributo con un valor de 7 (paper negro, ink blanco, sin flash, sin bright)
+<br>
+<br></i>
+Como ya se dijo, el editor es una página web offline. Se recomienda hacer una copia en una carpeta alternativa para su uso. En la carpeta tendrás tres archivos:<br><ul>
+<li>Kraspedit.html : El propio editor<br></li>
+<li>Tileset.png : Imagen del tileset<br></li>
+<li>Tileset.sev: Datos del tileset<br></li></ul>
+<br>
+Tileset.sev contiene los datos reales en formato SevenUP. Para modificar el tileset (o crear uno de cero) hay que guardarlo en este archivo. Debe ser de 128x128 píxeles (16x16 caracteres). El editor en sí no utiliza este archivo. En cambio, cuando tengas el tileset listo hay que exportar los datos a archivos bin (para incluirlos en el juego) y al archivo png (para que lo use el editor).
+<br>
+<br>
+El archivo Tileset.png contiene la imagen del tileset para el editor y se mostrará en el selector de tiles. Debe ser de 128x128.
+<br>
+<br>
+
+Ahora, para crear una pantalla, primero se elege un tile del selector. Esta será la esquina superior izquierda del bloque. Después pincha en el área de definición de bloque y arrastra y suelta para definir la ubicación y el tamaño del bloque. Se dibujará un rectángulo.<br><br>
+Según las propiedades actuales, el bloque será de un solo tile o tendrá un patrón repetido, o un patrón de escalera y puede tener datos personalizados y / o atributos asignados. Puedes cambiarlo modificando los valores y pinchando en "O".<br><br>
+Si pones otro bloque parcial o totalmente sobre el anterior, el nuevo quedará por delante. Como se mencionó, puedes mandarlo al fondo con los botones del navegador de bloques.<br><br>
+Si el bloque tiene un tamaño de 1x1 (tile único) no hay mucho que hacer: solo definir los datos del bloque / atributo personalizado (se explicará más adelante) pero si es más grande puede jugar con los modos de repetición (wrap) / escalera:<br><br>
+Los modos de de repetición definen la tasa de repetición de los tiles, en cada eje. 0 significa que se usará el mismo tile a lo largo del eje. 1 significa que se utilizarán los siguientes tiles a lo largo del eje. Los valores de 2 a 7 significan que se repetirán de 2 a 7 tiles a lo largo del eje. Si se selecciona un modo de escalera, solo se dibujará una diagonal y se tendrán en cuenta solo los datos en la parte dibujada. Los bloques que están detras pueden quedar parcial o totalmente visibles.<br><br>
+Si se marca "Custom attr", se asignará un valor de atributo personalizado al bloque, de modo que todos los tiles usarán ese atributo de color.<br><br>
+Si se marca "Block data", se asignará un valor de datos personalizado (un byte) al bloque. Esto será útil para la detección de colisiones con bloques.<br><br>
+Puedes pinchar en las casillas de "Data bit" para definir un valor de datos sin necesidad de especificar un valor personalizado. Esto ahorra un byte por bloque, pero limita los valores a los correspondientes a los bits 5, 6 y 7. Por ejemplo, si no se marca ningún bit, el valor de los datos será 0 (valor por defecto); si el bit 6 está marcado, el valor de los datos será 64; si los bits 5 y 6 están marcados, el valor de los datos será 96, etc.<br>
+<br>
+Estas indicaciones deberían ser suficientes de momento: para aprender a usar el editor, mejor pruebalo tu mismo.<br>
+<br>
+
+
+
+
+
+
+
+
+
+<h3><a name="dontneedtoknow"></a>
+Lo que NO necesitas saber (detalles en profundidad)
+</h3>
+<br>
+No, en serio, esta parte es para frikis.. léelo bajo tu propio riesgo..te puede explotar la cabeza, ¡Estás avisao!
+<br>
+<br><br>
+<strong>El mapeador
+</strong><br><br>
+Como se ha visto antes, el mapeador utiliza una serie de bloques en un orden determinado. Se implementa internamente como una especie de matriz dispersa, de forma que la esquina superior izquierda de un bloque indica su posición en la matriz, y se codifican datos adicionales para ese bloque. La idea es ahorrar la mayor cantidad de RAM posible, dando un uso a cualquier bit disponible. Esto se hace de la siguiente manera:
+<br><br>
+La cantidad mínima de información que tiene un bloque es de tres bytes:<br><ul>
+<li>El número de tile (0-255)<br></li>
+<li>La posición X, Y del bloque, además de bits adicionales<br></li></ul><br>
+Bien, las coordenadas X e Y están en unidades de caracteres, por lo que los valores oscilan entre 0 y 31 para la X y de 0 a 23 (en realidad 21) para la Y. Eso deja seis bits adicionales para almacenar información:<ul>
+<li>Flag de bloque de tamaño 1x1 (en caso contrario, habrá otro par de coordenadas para definir la esquina opuesta)<br></li>
+<li>Flag de atributo personalizado: Si se establece, se agregará otro byte al bloque y los atributos de los tiles del bloque se tomarán el valor de ese byte<br></li>
+<li>Flag de byte de datos: Si se establece, se agregará otro byte al bloque para almacenar el valor de datos del bloque<br></li>
+<li>Bits 5, 6 y 7 del byte de datos: Si el flag anterior es 0, el bit de datos estará compuesto por tres bits sin necesidad de un byte adicional (bits inferiores a 0)<br></li><br></ul>
+Si hay un segundo par de coordenadas XY, los seis bits restantes se usarán para el valor de repetición en cualquiera de los ejes (valores de 0 a 7)<br><br>
+Además, dado que para un bloque de varios tiles necesitamos dos pares de coordenadas pero nos da igual el orden, se pueden codificar otros dos bits intercambiando las esquinas (es decir, podemos considerar el primer par de coordenadas en la esquina superior izquierda, o inferior izquierda, o superior derecha o inferior derecha). Esto permite añadir los modos de "escalera".<br><br>
+<br>
+
+
+
+<strong>El renderizador</strong><br><br>
+Ahora viene la parte chunga..<br><br>
+Para dibujar gráficos ráster en un Spectrum (por ahora ignoraremos los atributos) tienes que resolver dos problemas:<br><ul>
+<li>La memoria de vídeo no es lineal, es decir, las líneas horizontales de la pantalla no son consecutivas: por ejemplo, la segunda línea en memoria es la octava línea en pantalla (esto provoca el conocido efecto "persiana" al cargar una pantalla).<br></li>
+<li>El Spectrum es demasiado lento, por lo que es muy probable que escribas en la memoria de video mientras se actualiza la pantalla, lo que provoca parpadeos y tearing.<br><br></li></ul>
+El primer problema es relativamente fácil de resolver "traduciendo" los números de línea. La clave es tratar de traducir lo menos posible.<br><br>
+El segundo problema es bastante más puñetero, y existen diferentes enfoques para abordarlo. KraspLib simplemente no se preocupa por la actualización de la pantalla y solo intenta minimizar los efectos indeseados dibujando las líneas una a una (en realidad, de dos en dos pero eso lo veremos más adelante).<br><br>
+Esencialmente, el proceso es el siguiente (el proceso real es un poco más complejo):<br><br>
+Tenemos un "array de punteros" y un "búfer de pre-dibujo". El array de punteros se utiliza para almacenar punteros a todos los datos que se van a escribir en la pantalla línea por línea, como una lista enlazada. Esto significa que cada elemento del array almacena un puntero a un bloque de datos con lo que se va a dibujar. Inicialmente, todos los elementos del array apuntan a cero, ya que no hay nada que dibujar. Supongamos por ahora que todos los elementos tienen el mismo tamaño:
+<br>
+<br>
+<code>
+Array_punteros<br>
+Índice -> Puntero<br>
+0 -> 0<br>
+1 -> 0<br>
+2 -> 0<br>
+3 -> 0<br>
+</code>
+<br>
+Cuando queramos dibujar un elemento, comenzaremos a asignar los punteros según la coordenada Y del elemento a dibujar para la primera línea del elemento, luego continuaremos con el siguiente puntero para la segunda línea del elemento, y así sucesivamente. Supongamos que queremos predibujar un elemento (elemento A) de dos líneas de altura en las coordenadas XY 5,1. El array de punteros quedaría así:<br>
+<br>
+<code>
+Array_punteros<br>
+Índice -> Puntero<br>
+0 -> 0<br>
+1 -> Dirección_Bloque_A0<br>
+2 -> Dirección_Bloque_A1<br>
+3 -> 0<br>
+</code>
+<br>
+Ahora, tanto el Bloque A0 como el Bloque A1 se almacenarán en el búfer de pre-dibujado (en orden de aparición, pero eso da igual). Cada bloque contiene la coordenada X, la propia línea de datos y el puntero al siguiente bloque. El siguiente bloque será el valor previamente presente en la lista de punteros, cero en este caso:<br>
+<br>
+<code>
+Buffer_pre_dibujado:<br>
+Posición : (Dato X,Dato linea, Dato puntero)<br>
+0 : (5,LineaA0,0)<br>
+3 : (5,LineaA1,0)<br>
+<br></code>
+En realidad, lo que anteriormente definimos como Dirección_Bloque_A0 y Dirección_Bloque_A1 serán, respectivamente, las posiciones 0 y 3 en el búfer de pre-dibujo, ya que cada bloque tiene un tamaño de 3. El array de punteros quedará así:<br>
+<br><code>
+Array_punteros<br>
+Índice -> Puntero<br>
+0 -> 0<br>
+1 -> Dirección búfer pre-dibujado + 0<br>
+2 -> Dirección búfer pre-dibujado + 3<br>
+3 -> 0<br>
+</code>
+<br>
+Ahora, supongamos que queremos pre-dibujar otro elemento de dos líneas de altura (elemento B) en coordenadas XY 2,0. El array y el búfer quedarán así:<br>
+<br>
+<code>
+Array_punteros<br>
+Índice -> Puntero<br>
+0 -> Dirección búfer pre-dibujado + 6<br>
+1 -> Dirección búfer pre-dibujado + 9<br>
+2 -> Dirección búfer pre-dibujado + 3<br>
+3 -> 0<br>
+<br>
+Buffer_pre_dibujado:<br>
+Posición : (Dato X,Dato linea, Dato puntero)<br>
+0 : (5,LineaA0,0)<br>
+3 : (5,LineaA1,0)<br>
+6 : (2,LineaB0,0)<br>
+9 : (2,LineaB1,Dirección búfer pre-dibujado + 0)<br>
+</code>
+<br>
+Observa que en la línea 1 de la pantalla tenemos dos bloques asignados (recuerda, es una lista enlazada): primero la segunda línea del elemento B (LineaB1) y luego la primera línea del elemento A (LineaA0).<br><br>
+Continuaríamos predibujando todo lo que quisiéramos, reasignando los punteros y añadiendo todos los datos consecutivamente en el búfer de pre-dibujado. La superposición (si la hay) no es problema, ya que los datos se escribirán en modo xor sobre lo existente, por lo que el resultado será el mismo independientemente del orden.<br><br>
+Una vez que hayamos terminado de pre-dibujar, recorreremos el array de punteros y dibujaremos toda la pantalla (durante este proceso se llevará a cabo la "traducción de línea" mencionada anteriormente).<br><br>
+Pero, ¿cómo borramos los datos cuando, por ejemplo, movemos un sprite? Bueno, aprovechamos el hecho de que cuando se hace xor de los datos consigo mismos el resultado es 0. Por lo tanto, para borrar los datos escritos anteriormente, se utiliza un segundo par de array de punteros y búfer de pre-dibujo. Ambos pares se procesan en cada frame, pero solo se rellena uno de los arrays de punteros, mientras que el otro contiene los datos del frame anterior. Cuando terminemos solo es cuestión de intercambiar los arrays y los búferes, por lo que cada frame borramos el anterior dato y escribimos el nuevo a la vez y consecutivamente, minimizando el parpadeo.<br><br>
+En realidad es algo más complejo: por ejemplo, se procesan dos líneas a la vez para aumentar la información útil de los bloques de datos, la coordenada X se divide en el componente char y el componente de desplazamiento de bits, y hay algunas optimizaciones más. Para más detalles, puedes revisar el código. Es bastante lioso, pero si entiendes el proceso, tienes la mitad del trabajo hecho.<br><br>
+En cuanto a los atributos, el proceso es similar y está entrelazado con el procesamiento del ráster. Ten en cuenta que en este caso no es necesario traducir líneas y para cada línea de atributo se procesan ocho líneas ráster. Además, para borrar los atributos del frame anterior, los datos se recuperan del "crunched attrib buffer" (se ve más adelante) en lugar de la técnica del xor (que no funcionaría)<br>
+
+
+
+
+
+
+
+<br>
+<h2><a name="gettingstarted"></a>
+Empezando
+</h2>
+<br>
+
+Aqui es donde las cosas se ponen interesantes...<br><br>
+
+
+<h3><a name="settingallup"></a>
+Poniendo todo a punto (y el típico "¡Hola mundo!")
+</h3>
+<br>
+En primer lugar, pongo viene la lista de herramientas que yo suelo utilizar. Puedes utilizar otras si quieres pero tendrás que trabajarte tu propio proceso de configuración. Tómate la siguiente información como una guía.<br><br>
+Herramientas recomendadas (bueno, al menos las que yo utilizo al momento de escribir este documento):<br><ul>
+<li>Compilador de Boriel ZX Basic (obvio), ver 1.17.3 .<br></li>
+<li>Emulador Spectaculator,  ver 5.30.0371 , y / o Fuse ver 1.6.0 .<br></li>
+<li>Editor de texto ConText, ver 0.98.6 .<br></li>
+<li>Ensamblador de Z80 PASMO, ver 0.5.3 . Solo lo necesitarás si quieres modificar el core o generar un bloque de código personalizado para, por ejemplo, establecer tu propia rutina de interrupción.<br></li>
+<li>SevenUp (Herramienta de dibujado para Spectrum), ver 1.20 . <br></li>
+<li>Microsoft Windows 10 / 11, como SO.<br></li>
+<li>Navegador web Microsoft Edge (para ejecutar el editor de mapas).<br></li></ul><br>
+También puedes plantearte usar trackers como Beepola o Vortex para la música pero en este documento no lo vamos a ver.<br>
+<br>
+Ahora tienes que instalar el compilador, la librería y el editor. Para lo que tenga instalador sige las instrucciones y si no descomprime el archivo zip (o rar o lo que sea) en la carpeta correspondiente. En el caso de la librería, puedes dejar la carpeta dentro de la carpeta Boriel ZX Basic, pero realmente no importa donde quede siempre que tengas en cuenta dónde está todo. Por ejemplo, puede quedar como se ve aquí:<br><br>
+<br>
+<img src="img/install_1.png"></img>
+<br><br>
+Fíjate que la carpeta KraspLib está dentro de la carpeta ZXBasic. Ahí es donde yo me he instalado la librería. Lo de abajo sería parte del contenido de la carpeta KraspLib:<br><br>
+<br>
+<img src="img/install_2.png"></img>
+<br><br>
+Está el núcleo (krasplib.bin), el envoltorio (krasplib.bas) y el archivo "make". La carpeta llamada "more" contiene el resto del material (el código fuente del núcleo, este documento, el editor de mapas, etc.)<br><br>
+Es recomendable configurar la variable de sistema PATH para incluir las carpetas tanto del compilador como de la librería. De este modo, no es necesario especificar las rutas completas al ejecutar el compilador (zxbc.exe) o el archivo make (krasplibmake.bat), pero aún así es necesario comprobar y ajustar el archivo make. Este es el lugar para ajustar el PATH en Windows:<br><br>
+<img src="img/install_3.png"></img>
+<br><br>
+Las dos entradas resaltadas son las que habría que agregar<br><br>
+Ahora, echemos un vistazo al contenido del archivo krasplibmake.bat:<br><code>
+<br>
+zxbc.exe -ta -S %1 -H 128 -I C:\boriel\zxbasic\krasplib --explicit --strict -O2 --append-binary C:\boriel\zxbasic\krasplib\krasplib.bin --append-binary map.bin --append-binary<br> tileset.bin --append-binary tsattr.bin --append-binary sprites.bin -o main.tap %2.bas<br>
+<br>
+copy /Y /B loader.tap + /B main.tap %2.tap /B<br>
+<br>
+del main.tap<br>
+<br></code>
+Esto primero compila usando las opciones necesaria, que se explicarán en seguida. A continuación, se crea el archivo .tap resultante que contiene el juego y, por último, elimina un archivo temporal utilizado en el proceso.<br><br>
+Este fichero bat toma como parámetros el punto de entrada (entry point) y el nombre del fichero fuente (solo el nombre del fichero, sin la extensión, que debe ser .bas) en ese orden<br><br>
+Las opciones usadas son:<br><ul>
+<li>-S : Establece el punto de entrada (pasado como parámetro)<br></li>
+<li>-H 128 : Esto es para reservar espacio para el montículo (heap). A menos que vayas a trabajar con cadenas o utilices algún tipo de variable dinámica te interesará mantener este valor lo más bajo posible. El valor predeterminado del compilador es aproximadamente 4000, pero a mí 128 me va bien. Si fuera necesario aumenta el valor.<br></li>
+<li>-I : Establece la ruta para la directiva #include. Aquí hay que poner la ubicación de la librería para que el compilador encuentre el envoltorio.<br></li>
+<li>--explicit y -strict : Hace el lenguaje fuertemente tipado: hay que declarar todas las variables indicando el tipo. Es necesario por motivos de rendimiento y compatibilidad.<br></li>
+<li>-O2 : Nivel de optimización recomendado. <br></li>
+<li>--append-binary : Esta opción se repite y cada instancia agrega al archivo .tap final los archivos bin requeridos, en el mismo orden. El primer archivo bin que se incluye es el núcleo, que debe especificarse con su ruta completa. El resto de los archivos bin corresponden a los assets y deben estar en la misma carpeta que el archivo fuente.<br></li>
+<li>-o main.tap : Indica que se compila en un archivo temporal ( main.tap )<br><br></li></ul>
+Una vez compilado, se creará el fichero tap final añadiendo el cargador (veremos más adelante cómo crear uno) y el fichero temporal anterior.<br>
+<br>
+Con esto ya podrías compilar desde línea de comandos escribiendo, por ejemplo, "krasplibmake 24320 myprogram" (recuerda el punto de entrada y el código fuente sin ext) pero la idea es usar un editor de texto que permita teclas de acceso rápido para ejecutar el make (para compilar) y el emulador. ConText lo permite aunque probablemente haya mejores opciones por ahí. Como ConText es lo que yo uso explicaré cómo configurarlo:,<br><br>
+Después de instalar ConText, ve a "Options -> Environment options" en el menú. En la pestaña "associations" puedes elegir los tipos de archivo por defecto (según la extensión) que se abrirán al hacer clic en ellos. Se recomienda asignar los archivos .bas. Tendrás que ejecutarlo como administrador para hacerlo.<br><br>
+<img src="img/install_4.png"></img><br><br>
+En la pestaña "execute keys" tendrás que configurar los detalles de ejecución para el make y el emulador. En las imágenes a continuación se puede ver que se define la tecla F9 para el make y F10 para el emulador:<br><br>
+<img src="img/install_5.png"></img><br>
+<img src="img/install_6.png"></img><br><br>
+Las opciones se explican en la misma ventana. Se recomienda marcar "capture console output" para que se muestren los resultados de la compilación/ejecución. Además, ten en cuenta que en este caso el emulador utilizado es Spectaculator. Fuse funcionará igual, y se podrían usar otros, pero tal vez habría que ajustar las opciones.<br><br>
+<i><strong>Importante:</strong><br>
+Recuerda ajustar el punto de entrada (entry point) según sea necesario. 24320 es solo el valor por defecto.<br>
+<br></i>
+Ahora, con esta configuración, con F9 compilas y con F10 ejecutas. El archivo tap resultante estará en la misma carpeta que el fuente y los assets.<br><br>
+Ahora toca preparar los assets.<br><br>
+Necesitarás los siguientes archivos:<br><ul>
+<li>map.bin : contiene los datos del mapa.<br></li>
+<li>sprites.bin :  contiene los gráficos de los sprites.<br></li>
+<li>tileset.bin : contiene los datos ráster del tileset.<br></li>
+<li>tsattr.bin : contiene los datos de atributo del tileset.<br></li>
+<li>loader.tap : contiene el cargador basic y la pantalla de carga (si está disponible)<br><br></li></ul>
+Los detalles sobre la generación de los archivos map.bin y loader.tap están más arriba, en "Más cosas que tienes que saber (el editor de mapas)". Para el resto:<br><br>
+Para obtener los datos del tileset hay que exportarlos a binario (o a ensamblador y "compilarlos" con, por ejemplo, PASMO). Además, los datos ráster y los datos de atributos se dividen en dos archivos diferentes (tileset.bin y tsattr.bin). El tileset predeterminado viene en formato .sev (SevenUP) y se desde SevenUP de la siguiente forma:<br><br>
+Primero, se configuran las opciones de salida como se muestra en la imagen:<br><br>
+<img src="img/install_7.png"></img><br><br>
+Fíjate en la lista "Byte sort priority". También habrá que seleccionar "Gfx" en "Data outputted". Esto es para exportar primero el ráster. Ahora hay que ir a "export" en el menú, exportar como bin y nombrar el archivo "tileset.bin".<br><br>
+Para los atributos hacemos lo mismo pero seleccionamos "attr" en "Data outputted". A continuación, volvemos a exportar como bin, pero esta vez nombrando el archivo "tsattr.bin".<br><br>
+Para los gráficos de los sprites, también con SevenUP, tendrás que modificar el apartado "Byte sort priority" manteniendo los "gfx" en el apartado "Data outputted" (recuerda que los sprites no tienen atributos asignados al cargarlos en el juego) como se muestra debajo:<br><br>
+<img src="img/install_8.png"></img><br><br>
+Todo eso sería para el archivo de gráficos de sprites predeterminado: recuerda que, dado que SevenUP solo permite 192 líneas por página, los gráficos se almacenan en diferentes "frames" (esa es una característica de SevenUP para a verificar la animación de sprites pero nosotros lo usamos para almacenar varias páginas de sprites).<br><br>
+En cualquier caso, tendrás que exportarlo una vez más, como binario, con el nombre "sprites.bin".<br><br>
+¡Y ahora ya estás listo para picar código!<br><br>
+Lo primero es agregar el #include necesario al principio del código:<br>
+<br>
+<pre><code>#include "krasplib.bas"</code></pre>
+<br>
+Como recordatorio, es fundamental definit la localización de las direcciónes de los assets, que deben coincidir con los datos que figuran en el cargador. Pinchando en "Generate init() for Boriel Basic" en el editor de mapas, se copiará al portapapeles un conveniente sub init() para incluir en tu código, que contiene las definiciones necesarias, así como una llamada a ks_kraspInit(). Así es como quedaría usando los valores por defecto:<br>
+<pre><code>
+sub init()
+  ink 7
+  ks_kraspInit()
+  'Entry point: 24320
+  kv_spraddr = 60160
+  kv_mapaddr = 49152
+  kv_tilesetaddr = 63232
+  kv_tilesetattraddr = 65280
+end sub
+</code></pre>
+<br>
+Y ahora, para compilar tu primer programa KraspLib solo hay que llamar a init(), borrar la pantalla (bueno.. es opcional), cargar una pantalla del mapas (también opcional.. ¡pero el mapa debe contener al menos una pantalla!) e imprimir el mensaje de marras. El código completo quedaría así:<br>
+<pre><code>
+#include "krasplib.bas"
+
+sub init()
+  ink 7
+  ks_kraspInit()
+  'Entry point: 24320
+  kv_spraddr = 60160
+  kv_mapaddr = 49152
+  kv_tilesetaddr = 63232
+  kv_tilesetattraddr = 65280
+end sub
+
+init()
+cls ' Optional
+ks_decodeScreen(0) ' Opcional, pero la pantalla 0 debe existir!
+print "Hola Mundo!"
+</code></pre>
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h3><a name="beforegame"></a>
+Antes de que el juego comience
+</h3>
+<br>
+
+
+Obviamente, quieres hacer algo más que mostrar un mensaje de "¡hola mundo!". En este punto, lo más probable es que quieras poner algún tipo de intro y luego mostrar un menú para que el jugador elija teclado o joystick, iniciar el juego y tal vez otras opciones (por ejemplo, la dificultad).<br><br>
+Puedes usar una de las pantallas del mapa como base para la intro o el menú (con ks_decodeScreen(habitación)). Para el menú, lo normal es que imprimas las opciones de la manera habitual en basic (print at y,x;" opción de menú";).<br><br>
+En este punto, lo que queda por hacer específico de KraspLib es elegir el control de entrada. Se puede optar por el teclado o joystick Kempston configurando el flag kv_usejoystick: Si el flag está a 0, se usará el teclado, de lo contrario, se usará el joystick Kempston (y las teclas adicionales).<br><br>
+Para redefinir las teclas, lo primero que hay que hacer es llamar a ks_clearKeys(). Esto borra las definiciones de teclas. Una vez hecho esto, toca que definir las teclas una a una con ks_redefineKey().<br><br>
+ks_redefineKey() toma como argumento una "acción" yespera a que pulses una tecla. Cuando esto ocurre, la tecla pulsada se asigna a la "acción". Lo habitual es que pongas un mensaje como "Tecla para ARRIBA" y luego llamarías a ks_redefineKey() y el programa esperaría a que se pulse la tecla que se usará para ""ARRIBA". Como ejemplo se pone debajo un fragmento de código del ejemplo #2:<br>
+<pre><code>
+sub redefineKeys()
+  ks_clearKeys()
+  print at 13,7;"LEFT";
+  ks_redefineKey(KC_SEL_KEY_LEFT)
+  ks_playSFX(KC_SFX_SELECT)
+  print at 13,7;"RIGHT";
+  ks_redefineKey(KC_SEL_KEY_RIGHT)
+  ks_playSFX(KC_SFX_SELECT)
+  print at 13,7;"HIGH JUMP";
+  ks_redefineKey(KC_SEL_KEY_UP)
+  ks_playSFX(KC_SFX_SELECT)
+  print at 13,7;"LOW JUMP ";
+  ks_redefineKey(KC_SEL_KEY_DOWN)
+  ks_playSFX(KC_SFX_SELECT)
+end sub
+</code></pre>
+<br>
+Observa que hay una serie de literales (constantes) que comienzan con KC_SEL_KEY_ que definen la acción. Además, observa que después de seleccionar una tecla, se reproduce un sonido que confirma la pulsación de la tecla, con ks_playSFX()
+<br><br>
+Las acciones disponibles son las cuatro direcciones (UP, DOWN, LEFT y RIGHT) y cuatro "acciones" (ACTION_1 a ACTION_4). El "botón de disparo" predeterminado corresponde a la acción 1 (KC_SEL_KEY_ACTION_1), por lo tanto, cuando se usa el joystick, las cuatro direcciones y la acción 1 se asignarán al joystick, mientras que las acciones 2, 3 y 4 aún se asignarán a las teclas. Mira la referencia de la librería para más detalles.<br>
+<br>
+Cuando llegue el momento de comenzar el juego y antes de la que empiece la acción (que tiene lugar en el bucle del juego), querrás inicializar los datos y cargar una pantalla de inicio. Para eso, lo habitual es borrar todos los datos de renderizado con ks_flush() antes de que se cargue la pantalla, y una vez cargada, puede que quieras inspeccionar los datos asociados para definir elementos como, por ejemplo, la ubicación de enemigos, objetos coleccionables, etc. Además, una buena práctica es llamar a ks_syncWait() (más detalles sobre esto más adelante) para borrar las pulsaciones de teclas pendientes.<br><br>
+Esto es parte del sub loadRoom() del ejemplo #2, que se llama justo después de iniciar el juego, así como cuando el jugador se mueve a otra pantalla:<br>
+<pre><code>
+sub loadRoom() ' Loads the room in global var "maproom"
+  ks_flush() ' The screen is cleared from the previos data, if any
+  printHud()
+  dim sposx, sposy, sval as ubyte
+  dim scan as uinteger
+  ks_curtain(0) ' Black screen before decoding the raster graphics
+  ks_decodeScreen(maproom) ' Alternatively, the decoding can be performed step-by-step
+                           ' (if so, remember to dump the data too!)
+
+  <i>[...] Acciones previas a la comprobación de los datos de la pantalla</i>
+
+  scan = 0 ' Add the enemies and moving platforms
+  for sposy = 0 to 84 step 4
+    for sposx = 0 to 124 step 4
+      sval = kv_databuffer(scan)
+
+  <i>[...] Acciones a tomar dependiendo del valor en sval</i>
+
+      scan = scan + 1
+    next
+  next
+end sub
+</code></pre>
+<br>
+<strong>En cuanto a los atributos de color en pantalla</strong><br>
+<br><br>
+A estas alturas, seguro que ya sabes cómo funciona el color en el Spectrum: Desde la posición de memoria 0x5800 hasta 0x5aff cada byte almacena información sobre los colores de frente (tinta / ink) y de fondo (papel / paper) de una celda de 8x8 píxeles, 3 bits por color, así como los flags de brillo (bright) y flash.<br><br>
+Cuando se carga una pantalla, la información de tinta se copia en un búfer para poder restaurar la tinta de cada celda siempre que sea necesario cuando el renderizador procesa un frame. Para ahorrar RAM, internamente solo se usa un byte para almacenar un par de valores de tinta. Estos datos se almacenan en un búfer interno llamado "crunched attrib buffer".<br><br>
+Se pueden realizar las siguientes acciones con respecto a estos "atributos comprimidos de tinta":<br><ul>
+<li>ks_crunchAttribs() : Esto vuelca los attributos del búfer de datos (nota: es el búfer de datos, no la zona de atributos la memoria de video) al "crunched attrib buffer". Esto se hace automáticamente cuando se llama a ks_decodeScreen().<br></li>
+<li>ks_dumpCrunchedAttr() : Restaura el valor de tinta desde el "crunched attrib buffer" en la posición especificada a la pantalla (es decir, a la memoria de vídeo, sin alterar los valores de papel / brillo / flash)<br></li>
+<li>kf_getCrunchedAttr() : Devuelve el valor de tinta en la posición especificada del "crunched attrib buffer".<br></li>
+<li>ks_setCrunchedAttr() : Establece el valor de tinta especificado en la posición especificada, en el "crunched attrib buffer".<br><br></li></ul>
+Esto puede ser un poco complicado, por lo que al principio puedes procurar simplificar el juego para no tener que usar estas funciones / subs, pero no dudes en probarlas para aprender cómo funciona y sacarle partido.<br>
+<br>
+
+
+
+<h3><a name="ingame"></a>
+El bucle de juego
+</h3>
+<br>
+Bien, ahora viene la parte interesante.<br><br>
+En el bucle de juego pricipalmente se hace lo siguiente:<br><ul>
+<li>Ejecuta la física del juego durante un frame (más sobre esto más adelante)<br></li>
+<li>Comprobar si es necesario interrumpir el flujo del bucle (por ejemplo, si el jugador muere). Esto se puede incluir en la "física del juego".<br></li>
+<li>Dibujar el frame (con ks_drawFrame())<br></li>
+<li>Actualizar los datos de entrada y esperar el siguiente frame (con ks_syncWait())<br></li>
+<li>Repetir el bucle<br></li></ul>
+<br>
+En cuanto a la física, los pasos más comunes son:<br><ul>
+<li>Actualizar las variables del jugador (ubicación, energía, inercia, gráfico de animación, etc.). Esto incluye consultar la entrada.<br></li>
+<li>Comprobar la detección de colisiones del jugador con el entorno (detección de colisiones de bloques). Puede significar que algunas variables del jugador deban recalcularse (por ejemplo, si se golpea una pared habrá que restaurar la posición previa)<br></li>
+<li>Comprobar otras interacciones con el jugador (por ejemplo, se recoge un objeto o se alcanza el borde y es necesario cargar otra pantalla)<br></li>
+<li>Actualizar la física de los otros elementos (enemigos, NPC, plataformas móviles, balas, etc.)<br></li>
+<li>Comprobar la detección de colisiones de los otros elementos con el entorno.<br></li>
+<li>Comprobar la detección de colisiones entre elementos (por ejemplo, el jugador golpea a un enemigo o una bala) y ejecutar las acciones necesarias.<br>
+<br></li></ul>
+La lógica del juego es cosa tuya. Aparte de eso, la mecánica de la librería que te ayudará a lograr el comportamiento esperado se explica a continuación:<br>
+<br><br>
+<strong>Datos de entrada</strong><br>
+<br><br>
+Se ha descrito anteriormente cómo elegir o no joystick y cómo redefinir las teclas. Ahora tenemos que "leer" los datos de entrada para poder interactuar con el jugador. Para ello, en cada frame se actualizan las variables globales de entrada para que puedas comprobar sus valores y realizar las acciones correspondientes.<br><br>
+Básicamente, hay dos variables, ambas de tipo ubyte. Ambas almacenan el estado actual de cada acción, una por bit:<br>
+kv_userinput : Si el bit vale 1, la acción está activa (por ejemplo, se presiona la tecla "UP").<br>
+kv_userinputpulse : Si el bit vale 1, se ha dado una pulsación de la acción. Esto es, se acaba de pulsar la tecla (o joystick) y en el siguiente frame volverá a 0 incluso si se mantiene apretado.<br>
+<br>
+Para discriminar las acciones activas, puedes utilizar las máscaras de flag KC_MASK_INPUT_. Puede combinarlas usando la operación de bits "or".<br><br>
+Ejemplos:
+<pre><code>
+if (kv_userinput = KC_MASK_INPUT_RIGHT) then ... ->
+  La premisa es verdad si el botón o tecla para "derecha" se ha pulsado
+
+if (kv_userinputpulse = KC_MASK_INPUT_ACTION_1) then ... ->
+  La premisa es verdad si el botón o tecla para "disparo" se acaba de pulsar (por ejemplo, disparar una sola bala)
+
+if (kv_userinputpulse = KC_MASK_INPUT_LEFT bor KC_MASK_INPUT_UP) then ... ->
+  La premisa es verdad solo si los botones o teclas para "izquierda" y "arriba" se acaban de pulsar
+
+</code></pre><br>
+<i><strong>Importante:</strong><br>
+No confundas las máscaras de flag KC_MASK_INPUT_ con los literales / constantes KC_SEL_KEY_. Están relacionados, pero no son lo mismo.
+<br></i>
+<br>
+Más detalles sobre esto, con listas de las constantes, en la referencia.<br>
+<br>
+<br>
+
+
+
+<strong>Configurando los elementos dibujables</strong><br>
+<br><br>
+Los elementos dibujables que se procesarán al llamar a ks_drawFrame() son los sprites y los puntos. Funcionan prácticamente igual, pero los sprites son de 16x16 píxeles (8x8 pseudopíxeles) y requieren un "índice de gráfico de sprite" para ser definidos, mientras que los puntos son de 2x2 píxeles (1 solo pseudopíxel) y no requieren una definición de gráfico ya que son.. bueno.. solo puntos.<br><br>
+Las propiedades de ambos se almacenan en dos arrays, uno para los sprites y otro para los puntos. Ambos contienen datos para 8 elementos cada uno. Sus propiedades afectan no solo a su ubicación y apariencia, sino también a la forma en que interactúan entre sí (a través de la detección de colisiones).<br><br>
+Los arrays son:<br><ul>
+<li>kv_spritedefs : Para sprites<br></li>
+<li>kv_dotdefs : Para puntos<br><br></li></ul>
+
+Los arrays son lineales y las propiedades de cada elemento se almacenan en cuatro bytes. Eso significa que el primer sprite tiene asignados los bytes del 0 al 3, el segundo tiene asignados los bytes del 4 al 7, y así sucesivamente. Lo mismo se aplica a los puntos.<br><br>
+Las propiedades de un sprite /dot son:
+<pre><code>
+byte 0: Descriptor del elemento, desglose a continuación:
+ bit 7: Elemento activo (se dibujará y contará para comprobación de colisiones) si el bit vale 1
+ bit 6: Si vale 1 indica que se usa el valor de tinta
+ bit 5: No utilizado, disponible para el programador
+ bits 3 and 4: Afinidad, para detección de colisiones (explicado más adelante)
+ bits 0 to 2: Color de tinta, si el bit 6 vale 1
+byte 1: Coordenada X en pseudopixels
+byte 2: Coordenada Y en pseudopixels
+byte 3: Indice del gráfico de sprites a dibujar. Si es un punto no KraspLib no usa y queda
+  disponible para el programador (por ejemplo, para guardar la dirección de una bala)
+</code></pre>
+<br>
+Cuando activas un elemento, además de establecer las coordenadas X,Y (y el índice del gráfico de sprite para los sprites) seguramente asignarás un valor al descriptor como en este ejemplo:<br><br>
+<code>kv_spritedefs(8) = KC_ELEMENT_ENABLED bor KC_ELEMENT_USEATTRIB bor KC_AFFINITY_0 + 6</code><br><br>
+Esto significa que el tercer sprite de la lista está habilitado, usa el valor de tinta (6, amarillo) y tiene un valor de afinidad "0". En realidad, puedes usar la suma (+) en lugar de la operacion de bits "or" (bor)<br><br>
+Casi seguro reservarás el primer sprite (sprite número 0) para el personaje principal, y dejarás el resto para enemigos, plataformas móviles, etc.<br><br>
+
+
+
+<br>
+<strong>Detección de colisiones con el entorno</strong><br><br>
+<br>
+Ya se ha explicado que el mapa se basa en bloques, teniendo cada uno un valor de "datos" asociado. La mayoría de las veces, el valor de los datos tendrá sus bits 0 a 4 a 0, ya que si es posible es mejor definirlos haciendo clic en las casillas de "data bit", ahorrando así un byte por bloque (no parece mucho, pero un mapa típico puede contener fácilmente 2000 bloques y eso son 2k, ¡mucha memoria para un viejo Spectrum!). La detección de colisiones de bloques permite obtener los datos de un bloque que un sprite está "tocando". Así es como funciona:<br><br>
+En general, la detección de colisiones de KraspLib utiliza un esquema de "probar y revertir": no se comprueba si la colisión va a ocurrir; Comprueba si se ha producido y, si es necesario, se revierten los cambios que causaron la colisión. Por ejemplo, supongamos que mueves un elemento un pseudopíxel a la izquierda y se comprueba si el elemento está sobre una pared. De ser así, dado que no queremos que el elemento atraviese la pared, hay que mover el elemento un pseudopíxel a la derecha. Se puede complicar si se mueve más de un pseudopíxel, ya que es posible que quieras alinear el elemento para colocarlo justo al lado de la pared, pero esa es otra historia. Si eres un programador competente, no solo sabes a lo que me refiero, sino que también sabrás encontrar una solución.<br><br>
+Bueno, seguimos.. Para comprobar las colisiones de los sprites con el entorno (colisiones de bloques) se utiliza la función:
+<br><br>
+<code>kf_collisionWithBlock (sprnum, side)</code><br><br>
+sprnum es el índice del sprite (es decir, para el primero es 0, para el segundo es 4, y así sucesivamente) que queremos comprobar.<br><br>
+side es el lado del sprite que queremos comprobar. Esto sirve para optimizar. Esta es la explicación:<br><br>
+Si especificamos el valor KC_COL_BLOCK_CENTER se comprobará toda el área del sprite. Seguramente podemos usar esto en casi cualquier situación, pero puede ser un desperdicio de ciclos de reloj.<br><br>
+Si estamos seguros de que solo queremos comprobar uno de los lados del sprite podemos usar los siguientes valores: KC_COL_BLOCK_UP, KC_COL_BLOCK_DOWN, KC_COL_BLOCK_LEFT y KC_COL_BLOCK_RIGHT.<br><br>
+Comprobar solo un lado ahorra algunos ciclos de reloj (es un poco más rápido) funcionará igual si solo es posible tener una colisión en esa dirección. Por ejemplo, si mueves un sprite hacia la izquierda, solo necesitas comprobar el lado izquierdo, por lo que preferirás usar KC_COL_BLOCK_LEFT.<br><br>
+Dicho esto, la detección de colisiones funciona así:<br><br>
+Se comprueban todas las celdas de 8x8 en las que se encuentra el sprite que se ajustan al parámetro side. Se devolverá el valor más alto encontrado. Esto significa que al espacio vacío debe asignarse a un valor de datos de 0, y cuanto más sólido sea un bloque, mayor será el valor que tendrá. Por ejemplo, podemos asignar 64 a "agua", 96 a "pinchos", 128 a "plataformas" y 192 a "ladrillos" (nótese que estamos usando solo los tres bits más significativos). Si por ejemplo, caemos desde arriba (es decir, estamos aumentando la coordenada Y) comprobaremos dónde caemos. Si caemos en una repisa (es decir, parte de los bloques de debajo son 0 y parte son 192) el valor detectado es 192 y se interpreta como "cayer sobre tierra firme", por lo que ajustaríamos la coordenada Y y tendríamos al personaje parado sobre la repisa. Nótese que realmente no nos importa si junto a la repisa no hay nada (valor 0), agua (valor 64), pinchos (valor 92) o plataformas (valor 128).
+<br><br>
+Ahora bien, si en cambio caemos parcialmente en los picos (y en parte en "nada") nos haremos daño y, dependiendo de la lógica del juego, la coordenada Y puede o no corregirse. Además, los pinchos tienen prioridad sobre el agua, por lo que si hay pinchos y agua aún nos lastimaremos.<br><br>
+Si, por ejemplo, caemos en una plataforma (valor 128) desde arriba, podemos interpretarla como tierra firme, pero si saltamos desde abajo, la atravesaremos, a menos que choquemos con un ladrillo.<br><br>
+Por supuesto, puede haber situaciones en las que queramos afinar la detección de colisiones si necesitamos saber si golpeamos más de un tipo de bloque. Por desgracia, la librería no lo permite, pero puede resolverse manualmente consultando el array kv_databuffer.<br><br>
+Por otro lado, para comprobar las colisiones de bloques con puntos, tendrás que hacerlo manualmente comprobando el array de kv_databuffer, pero en este caso la comprobación es fácil ya que un punto sólo ocupará una y sólo una celda de 8x8 píxeles. Puedes usar kf_coordsToBufferIndex para obtener la posición o usar una fórmula para calcular la posición directamente (consulta la referencia para obtener más detalles)<br>
+<br><br>
+ 
+
+
+
+<strong>Detección de colisiones entre elementos. Entendiendo la afinidad</strong><br>
+<br><br>
+Es posible la detección de colisiones de sprites contra sprites y sprites contra puntos (pero no puntos contra puntos). Además, se aplica una mecánica de "afinidad" que va de la siguiente manera: Cuando se llama a una función de detección de colisiones, se verificarán las ubicaciones de cada elemento y si los elementos se superponen, contará como una colisión. Pero los elementos que no coincidan con el valor de afinidad se omitirán. Esto permite diferentes interacciones (o ninguna interacción en absoluto) dependiendo de la afinidad para, por ejemplo, evitar el fuego amigo, tener NPC inofensivos, etc. Por otro lado, puede darse el caso de que necesites comprobar colisiones para más de una afinidad. En ese caso, por desgracia, tendrás que duplicar el proceso, lo que no es eficiente pero aún así no es tampoco una gran pérdida. El ejemplo proporcionado # 1 (Shooter) muestra esta mecánica, ¡así que no olvides revisarlo!.<br>
+<br>
+De todos modos, aquí va una explicación más detallada:<br>
+<br>
+La función para comprobar si hay colisiones entre sprites es esta:<br>
+<pre><code>
+kf_collisionWithSprite(affinidad, sprnum)
+</code></pre>
+<br>
+En primer lugar, el valor devuelto es contraintuitivo, pero sigue teniendo su lógica: si no se detecta ninguna colisión, se devolverá el valor 0xff (255). Si se detecta una colisión, se devolverá el índice del primer sprite que colisione. Esto permite identificar el sprite que colisiona, lo que permite a su vez interactuar con él para, por ejemplo, "empujarlo" o "matarlo". Recuerda que el índice es 0 para el primer sprite de la lista de sprites (kv_spritedefs), 4 para el segundo, 8 para el tercero, y así sucesivamente.<br><br>
+Ahora, el parámetro sprnum indica el índice (recuerda, 0, 4, 8, etc.) del sprite con el que quieres comparar con el resto. Obviamente, este sprite no se comparará consigo mismo sino con el resto de sprites. Llamaremos a este sprite el sprite "origen".
+<br><br>
+El parámetro de afinidad significa que solo se procesarán los sprites de la lista de sprites que coincidan con el valor de afinidad indicado. Los valores posibles para la afinidad son 0, 8, 16 y 24, ya que ocupan los bits 3 y 4 del descriptor. Se proporcionan cuatro literales / constantes que puedes usar para que el código sea más legible: KC_AFFINITY_0 a KC_AFFINITY_3. Además, KC_AFFINITY_MASK (que a su vez tiene el valor de 24, el mismo que KC_AFFINITY_3) se puede usar para extraer el valor de afinidad del descriptor aplicando la operación de bis "and" (band).<br><br>
+Es importante entender que la afinidad del sprite "origen" no se tiene en cuenta a la hora de comparar, por lo que puedes, Por ejemplo, comparar un sprite "origen" con KC_AFFINITY_2 con la lista de sprites para sprites con KC_AFFINITY_1. Se devolverá el índice del primer sprite de la lista que se superponga y tenga KC_AFFINITY_1, o 0xff de lo contrario.<br><br>
+Además, la superposición no tiene umbral: siempre que un pseudopíxel se superponga, cuenta como una colisión (es decir, el hitbox es todo el sprite de pseudopíxeles de 8x8). Por lo tanto, se recomienda "rellenar" los gráficos de los sprites para evitar el efecto "¡Eh, que ese enemigo no me ha tocado!".<br><br>
+Un efecto secundario negativo es que, si necesitas detectar varias colisiones, tendrás que verificar una cada vez hasta que no se encuentren colisiones. Si encuentras una colisión tendrás que cambiar temporalmente la afinidad del sprite detectado y volver a comprobar si hay más.<br>
+<br>
+Ahora, para comprobar si hay colisiones entre sprites y puntos:<br>
+<pre><code>
+kf_collisionWithDot(affinidad, sprnum)
+</code></pre>
+Funciona prácticamente igual, pero:<br><ul>
+<li>Obviamente, el hitbox de un punto es solo un pseudopíxel de 1x1. El hitbox del sprite sigue teniendo un tamaño de 8x8.<br></li>
+<li>La comprobación se centra en el sprite, no en el punto. Eso significa que se comprueba si un sprite ha chocado con un punto.<br></li>
+<li>Por lo tanto, si se detecta una colisión, el resultado será el índice del punto en la lista de puntos (kv_dotdefs).<br></li>
+<li>La afinidad funciona de la misma manera: se ignorarán los puntos con una afinidad diferente a la que se pasó como parámetro.<br>
+<br></li></ul>
+.. Ahora.. Supongo que debería poner algo de código fuente aquí como ejemplo, pero probablemente sea mejor que consultes el ejemplo # 1 ... Y estarás de acuerdo conmigo en que este documento se está volviendo un coñazo.. Menos mal que ya estamos terminando.<br>
+<br>
+
+
+
+
+
+
+<br>
+<h2><a name="examples"></a>
+Ejemplos completos
+</h2>
+<br>
+
+Con la librería se proporcionan dos ejemplos completos para ayudarte a comprender cómo funciona. Siéntete libre de modificarlos o usarlos como base para tus propios proyectos si te apetece. Muestran la mayoría de las funcionalidades de la librería combinadas de forma que dan un resultado medio decente.<br>
+<br><br>
+Ejemplo #1: Shooter (juego de disparos)<br><br>
+Este ejemplo no es particularmente divertido pero muestra la librería a plena carga, con un rendimiento entre 12 y 17 fps. El objetivo es eliminar a todos los enemigos, pero los enemigos solo se pueden matar con balas del mismo color. Hay cuatro rondas diferentes.<br><br>
+Tiene unas 500 líneas de código.<br>
+<br><br>
+Ejemplo #2: Platformer (juego de plataformas)<br><br>
+Este ejemplo utiliza menos funciones y está menos cargado, funcionando la mayor parte del tiempo a 25 fps, pero tiene una lógica más compleja. La primera pantalla del mapa es el fondo de la pantalla del menú y además contiene algunos datos que se utilizarán internamente. Es técnicamente posible crear un juego completamente nuevo simplemente alterando los assets (aunque obviamente, la física y el comportamiento del juego serían los mismos). El objetivo es llegar a la salida y hay un total de 31 pantallas jugables.<br><br>
+Puedes probar a añadir características, como la posibilidad de atacar a los enemigos, hacer que la gravedad sea más realista, más objetos para recoger o nuevos enemigos.<br><br>
+Una versión más pulida de este juego, solo mejorando los assets, habría sido un buen título de segunda fila de mediados de los 80:<br><br>
+Tiene unas 750 líneas de código.<br>
+
+
+
+<br>
+<h2><a name="finaltips"></a>
+Unos consejos finales
+</h2>
+<br><ul>
+<li>Lee todos los consejos anteriores marcados como importantes. Eso probablemente te dará pistas para resolver muchos de los bugs extraños que puedas encontrar.<br></li>
+<li>Comprueba y juegua con el código de los ejemplos proporcionados.<br></li>
+<li>Recuerda que es posible imprimir tiles en cualquier momento al margen del proceso de dibujado de sprites. Para no interferir, es mejor hacerlo en modo xor (es posible que primero haya que imprimir el tile actual para borrarlo, y luego imprimir el tile que quieres). De esa manera puedes, con limitaciones, añadir "sprites" de 8x8 para elementos pequeños como bombas, metralla, etc. También puedes usarlo para agregar algún tipo de animación a la habitación. Es aconsejable hacerlo justo después de la llamada a ks_syncWait() y no abusar para evitar parpadeos u otros artefactos.<br></li>
+<li>Puedes concatenar assets para poder cargarlos de una vez. Por ejemplo, puedes añadir una pista de Beepola después de los datos del mapa para que se carguen juntos sin necesidad de crear un cargador personalizado. Solo ten en cuenta la ubicación de los datos y asegúrate de que haya espacio para ellos. En realidad, puede colocar una pista de Beepola en el área del búfer y reproducirla solo una vez después de la carga y antes de la inicialización, proporcionando así música post-carga sin un impacto real en el uso de RAM.<br></li>
+<li>Las operaciones de bits son una forma muy potente de optimizar código, especialmente el desplazamiento de bits. No solo permite evitar multiplicar y dividir (lo cual es lento), sino que también el acceso a los elementos de los arrays puede ser más rápido. Esa es la razón por la que no se proporcionan variables tabuladas globales como matrices (dos dimensiones) sino como arrays (una dimensión, es decir, un vector): todos los arrays que contienen datos tabulados tienen un número de columnas que son una potencia de dos, por lo que la fila se puede calcular sumando un valor Y con bits desplazados, por ejemplo, dato_en_posx_posy = kv_decodebuffer( posx + (posy << 5) ). Solo recuerda convertir el tipo (cast) si es necesario.<br></li>
+<li>Recuerda que Boriel Basic, con las opciones de compilación necesarias, funciona más o menos como C: no te ayudará con desbordamientos, límites de arrays, etc. Tenlo en cuenta cuando encuentres bugs extraños. A veces puede venir bien (por ejemplo, un contador que se espera que se desborde a cero sin causar un error).<br></li>
+<li>Manipular los atributos de color en pantalla puede ser complicado. Recuerda que el "crunched attrib buffer" solo contiene la información de tinta.<br></li>
+<li>La decodificación de una pantalla del mapa paso a paso permite un procesamiento invisible si, por ejemplo, quieres añadir o eliminar un elemento, una puerta, etc., pero recuerda que solo hay un búfer de decodificación que se sobrescribe en cada pasada, por lo que puede ser más complicado de lo que parece. Si necesitas conservar los datos de una pasada, puedes copiarlos, pero necesitarás 704 bytes valiosos, más el código requerido (el ensamblador con su instrucción ldir sería su mejor opción).<br></li>
+<li>Si no lo has hecho ya, ¡atrévete a aprender y usar ensamblador! No es necesario que escribas un juego completo desde cero, todo en ensamblador (eso es como tratar de resolver el rompecabezas del diablo), pero es muy útil para algunas tareas específicas.<br></li></ul>
+
+
+<br>
+<h2><a name="reference"></a>
+Referencia
+</h2>
+
+<pre>
+<code>
+
+<strong>Variables y constantes / literales globales en general</strong>
+
+Variable global de búfer de datos:
+  kv_databuffer(704) (array de ubyte) : Contiene los datos decodificados del mapa. Pueden ser números de
+    tile, atributos de color o datos asociados, según la pasada
+
+Direcciones a varias localizaciones (constantes / literales de tipo uinteger):
+  KC_DOTDEFS_DIR : Dirección de la lista de puntos, para usar en ensamblador. Valor arbitrario
+  KC_SPRITEDEFS_DIR : Dirección de la lista de sprites, para usar en ensamblador. Valor arbitrario
+  KC_DIR_MAP_DECODE_BUFFER : Dirección del búfer de decodificación (kv_databuffer) para usar en ensamblador. Valor arbitrario
+  KC_DIR_ATTRIB_BUFFER :  Dirección del "crunched attrib buffer", para usar en ensamblador. Valor arbitrario
+  KC_MEMORY_VIDEO_RASTER : Dirección de memoria de vídeo - ráster, del Spectrum. Valor: 0x4000
+  KC_MEMORY_VIDEO_ATTRIBS : Dirección de memoria de vídeo - atributos, del Spectrum. Valor: 0x5800
+
+
+<strong>Inicialización</strong>
+
+sub ks_kraspInit()
+  Limpia los búferes y las listas de sprites y puntos. Justo despues debes asignar valores a las variables de assets:
+  kv_spraddr (uinteger) : Dirección del asset de gráficos de sprites
+  kv_mapaddr (uinteger) : Dirección del asset de datos de mapa
+  kv_tilesetaddr (uinteger) : Dirección del asset de gráficos ráster del tileset
+  kv_tilesetattraddr (uinteger) : Dirección del asset de atributos del tileset
+
+
+<strong>Renderizado / dibujado</strong>
+
+Arrays globales de sprites y puntos:
+  kv_spritedefs(32) (array de ubyte) : Lista de sprites
+    8 sprites, 4 bytes por sprite 
+    byte 0: Descriptor. Bit 7: sprite activado ; bit 6: usar attribute ; bits 0-2: valor ink
+      bits 3-4: afinidad para colisiones
+    byte 1: posición x, 0 to 119
+    byte 2: posición y, 0 to 79
+    byte 3: número de gráfico de sprite
+  kv_dotdefs(32) (array of ubyte) : Lista de puntos
+    8 dots, 4 bytes por punto
+    byte 0: Descriptor. Bit 7: punto activado ; bit 6: usar attribute ; bits 0-2: valor ink
+      bits 3-4: afinidad para colisiones
+    byte 1: posición x, 0 to 127
+    byte 2: posición y, 0 to 87
+    byte 3: definido por el usuario
+
+Máscaras para los descriptores de los elementos:
+  KC_ELEMENT_ENABLED (ubyte) valor: 0x80
+  KC_ELEMENT_USEATTRIB (ubyte) valor: 0x40
+
+Valores para afinidad / máscara, para los decriptores de los elementos:
+  KC_AFFINITY_MASK (ubyte) valor: 0x18
+  KC_AFFINITY_0 (ubyte) valor: 0x00
+  KC_AFFINITY_1 (ubyte) valor: 0x08
+  KC_AFFINITY_2 (ubyte) valor: 0x10
+  KC_AFFINITY_3 (ubyte) valor: 0x18
+
+sub ks_drawFrame()
+  Procesa un frame completo: Redibuja todos los sprites y puntos activos
+
+
+<strong>Carga de pantallas del mapa</strong>
+
+sub ks_decodeScreen(room as ubyte)
+  Carga una pantalla del mapa. Llena el búfer de datos y el "crunched attrib buffer"
+  room: Número de pantalla a cargar
+
+sub ks_decodeScreenStepByStep(room as ubyte, pass as ubyte)
+  Decodifica una pasada de carga de pantalla en el búfer de datos. Mejor usar ks_decodeScreen.
+  Ver también: ks_dumpAttribs(), ks_dumpRaster() y ks_crunchAttribs() para decodificación completa
+  room: Número de pantalla del mapa
+  pass: Possibles valores (autoexplicativo):
+    KV_DECODE_PASS_RASTER valor: 0
+    KV_DECODE_PASS_ATTRIBS valor: 1
+    KV_DECODE_PASS_DATA valor: 2
+
+
+<strong>Datos de entrada</strong>
+
+Variables globales de entrada:
+  kv_usejoystick (ubyte) : Poner a 1 para usar joystick kempston.
+    Observa que las acciones 2 a 4 siempre están asignadas a teclado.
+  kv_userinput (ubyte) : Contiene flags de entrada, actualizada con ks_syncWait()
+  kv_userinputpulse (ubyte) : Contiene flags de pulsación de entrada, actualizada con ks_syncWait()
+  User input flags (ubyte, autoexplicativo):
+    KC_MASK_INPUT_RIGHT valor: 1
+    KC_MASK_INPUT_LEFT valor: 2
+    KC_MASK_INPUT_DOWN valor: 4
+    KC_MASK_INPUT_UP valor: 8
+    KC_MASK_INPUT_ACTION_1 valor: 16
+    KC_MASK_INPUT_ACTION_2 valor: 32
+    KC_MASK_INPUT_ACTION_3 valor: 64
+    KC_MASK_INPUT_ACTION_4 valor: 128
+
+sub ks_clearKeys()
+  Limpia las asignaciones de teclas. Llamar antes de redefinir
+
+sub ks_redefineKey(selkey as ubyte)
+  Espera una pulsación de tecla y le asigna la acción seleccionada
+  selkey: Asignación de selección para tecla. Posibles valores (ubyte, autoexplicativo):
+    KC_SEL_KEY_RIGHT valor: 0
+    KC_SEL_KEY_LEFT valor: 1
+    KC_SEL_KEY_DOWN valor: 2
+    KC_SEL_KEY_UP valor: 3
+    KC_SEL_KEY_ACTION_1 valor: 4
+    KC_SEL_KEY_ACTION_2 valor: 5
+    KC_SEL_KEY_ACTION_3 valor: 6
+    KC_SEL_KEY_ACTION_4 valor: 7
+
+
+<strong>Detección de colisiones</strong>
+
+Nota: En general, las coordenadas de los elementos se actualizarán antes de la comprobación y después,
+  si es necesario, se recuperarán los valores previos
+
+function kf_collisionWithBlock (sprnum as ubyte, side as ubyte) as ubyte
+  Detecta colisión con bloques. Devuelve el valor más alto detectado en la zona seleccionada
+  sprnum: Índice del sprite a comprobar
+  side: Area del sprite a comprobar. Posibles valores (autoexplicativo):
+    KC_COL_BLOCK_CENTER valor: 0
+    KC_COL_BLOCK_UP valor: 1
+    KC_COL_BLOCK_DOWN valor: 2
+    KC_COL_BLOCK_LEFT valor: 3
+    KC_COL_BLOCK_RIGHT valor: 4
+
+function kf_collisionWithDot(affinity as ubyte, sprnum as ubyte) as ubyte
+  Detecta si hay colisión entre un sprite y un punto
+  affinity: Se ignorarán los puntos cuya afinidad no coincida con este valor
+  Posibles valores (ubyte):
+    KC_AFFINITY_0 valor: 0x00
+    KC_AFFINITY_1 valor: 0x08
+    KC_AFFINITY_2 valor: 0x10
+    KC_AFFINITY_3 valor: 0x18       
+  sprnum: Índice del sprite a comprobar
+  Devuelve 255 si no hay colisión. El índice del punto en caso contrario
+
+
+function kf_collisionWithSprite(affinity as ubyte, sprnum as ubyte) as ubyte
+  Detecta si hay colisión entre un sprite "origen" y otro sprite de la lista de sprites (sprites "destino")
+  affinity: Se ignorarán los sprites cuya afinidad no coincida con este valor (además del sprite "origen")
+  Posibles valores (ubyte):
+    KC_AFFINITY_0 value: 0x00
+    KC_AFFINITY_1 value: 0x08
+    KC_AFFINITY_2 value: 0x10
+    KC_AFFINITY_3 value: 0x18       
+  sprnum: Índice del sprite "origen" a comprobar
+  Devuelve 255 si no hay colisión. El índice del sprite en caso contrario
+
+<strong>Sonido</strong>
+
+sub ks_playSFX(id as ubyte)
+  Reproduce un efecto de sonido
+  id: Número de efecto de sonido. Posibles valores:
+    KC_SFX_HIT (ubyte) valor: 0
+    KC_SFX_PICK (ubyte) valor: 1
+    KC_SFX_SELECT (ubyte) valor: 2
+    KC_SFX_LOOSE (ubyte) valor: 3
+    KC_SFX_LONG_LOW_TICK (ubyte) valor: 4
+    KC_SFX_LONG_HIGH_TICK (ubyte) valor: 5
+    KC_SFX_SHORT_HIGH_TICK (ubyte) valor: 6
+    KC_SFX_SHORT_LOW_TICK (ubyte) valor: 7
+
+sub ks_genericSound(pitch as ubyte, time as ubyte)
+  Reproduce un sonido de acuerdo al tono (pitch) y duración (time)
+  Los parámetros son algo arbitrarios
+  Usado internamente por ks_playSFX y puesto a disposición por si te resulta útil
+
+
+<strong>Miscellaneos / Otros</strong>
+
+sub ks_printTile(posx as ubyte, posy as ubyte, tilenum as ubyte, xormode as ubyte)
+  Dibuja un tile. Si hay sprites o puntos activos se recomienda usar el modo xor
+    posx, posy: Coordenadas char destino (0 to 31, 0 to 23)
+    tilenum: Número de tile
+    xormode: 0 para normal, 1 para superposición xor con datos existentes
+    Nota: El atributo de color en pantalla no se altera
+
+sub ks_setCrunchedAttr(posx as ubyte, posy as ubyte, value as ubyte)
+  Establece un valor ink en el "crunched attrib buffer". Este se restaurará en pantalla cuando un
+    sprite o punto activo abandona la celda
+    posx, posy: Coordenadas pseudopixel de la posición en pantalla (0 a 127, 0 a 87)
+    value: Valor ink (0 a 7)
+
+function kf_getCrunchedAttr(posx as ubyte, posy as ubyte) as ubyte
+  Obtiene el valor ink del "crunched attrib buffer"
+    posx, posy: Coordenadas pseudopixel de la posición en pantalla (0 a 127, 0 a 87)
+    Devuelve el valor ink (0 a 7)
+
+sub ks_dumpCrunchedAttr(posx as ubyte, posy as ubyte)
+  Copia el valor ink del "crunched attrib buffer" a la pantalla
+  posx, posy: Coordenadas pseudopixel de la posición en pantalla (0 a 127, 0 a 87)
+
+sub ks_dumpAttribs()
+  Copia los datos ink del "crunched attrib buffer" a la pantalla
+
+sub ks_dumpRaster()
+  Dibuja en pantalla los gráficos raster de los tiles en el búfer de datos
+
+sub ks_crunchAttribs()
+  Asumiendo que en el búfer de datos se encuentran los atributos de color, copia la información
+    de ink en este al "crunched attrib buffer"
+
+sub ks_syncWait(skip as ubyte)
+  Asegura un número mínimo de saltos de frames desde la anterior llamada. Además actualiza la entrada
+    skip: Número máximo de frames a esperar (puede ser cero)
+    Note: El Spectrum dibuja 50 frames por segundo
+
+sub ks_clearItems()
+  Borra los arrays kv_spritedefs y kv_dotdefs
+
+sub ks_flush()
+  Borra los arrays kv_spritedefs y kv_dotdefs y los búferes
+
+function kf_coordsToBufferIndex(posx as ubyte, posy as ubyte) as uinteger
+  Devuelve el índice de kv_databuffer correspondiente al pseudopixel de la posición posx, posy
+    Posibles valores de posx y posy: 0 a 127 and 0 a 87
+  No se recomienda, ya que es más rápida la fórmula directa con operaciones de bits:
+  (cast(uinteger,(posy band 0xfc))<<3) + (cast(uinteger, posx)>>2)
+   
+sub ks_curtain(color as ubyte)
+  Establece los atributos de color del área dibujable con  el valor indicado.
+  Usar antes de ks_decodeScreen para esconder el proceso de dibujado.
+
+
+</code>
+</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+
+
+</html>

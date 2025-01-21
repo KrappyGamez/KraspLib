@@ -1,0 +1,2143 @@
+<html>
+
+<!-- (C) KrappyGamez 2025 bajo licencia MIT -->
+
+
+
+Krasplib Map Edit Tool Ver. 0.12 Beta
+<br>
+<table border = "3">
+<tr>
+<td>
+<canvas id="canvas_mapeador" width="512" height="384" style="border:1px solid #000000;">
+</canvas>
+</td>
+<td>
+<button id = "breset" onclick = "reset();">RESET</button>
+<button id = "bclear" onclick = "clearpage();">CLEAR</button>
+<!-- <button id = "bload" onclick = "loadmap();">LOAD OLD</button> --!>
+<button id = "bload" onclick = "loadmap2();">LOAD</button>
+<button id = "bsave" onclick = "savemap();">SAVE</button>
+<br>
+<br>
+<button id = "bexport" onclick = "exportmap(0);">EXPORT</button>
+<button id = "bexportbin" onclick = "exportmap(1);">DOWNLOAD BIN</button>
+<p align = "center">
+PAGE 
+<label id = "lnumpage"></label>
+<br>
+<button id = "bprevpage" onclick = "prevpageclick();">&lt</button>
+<button id = "bnextpage" onclick = "nextpageclick();">&gt</button>
+
+<button id = "buppage" onclick = "uppageclick();">/\</button>
+<button id = "bdownpage" onclick = "downpageclick();">\/</button>
+<br>
+<!--image id = "tset" src = "tileset.png" width="256" height="256" hidden = "true"></image--!>
+<image id = "tset" src = "tileset.png" width="256" height="256" hidden = "true"></image>
+
+<canvas id="canvas_tiles" width="256" height="256" style="border:1px solid #000000;"></canvas>
+<br>
+BLOCK 
+<label id = "lnumbloc"></label>
+<br>
+<button id = "bprevblock" onclick = "prebblockclick();">&lt</button>
+<button id = "bnextblock" onclick = "nextblockclick();">&gt</button>
+<button id = "btobaack" onclick = "tobackclick();">/\</button>
+<button id = "btofront" onclick = "tofrontclick();">\/</button>
+<button id = "bdelete" onclick = "deleteblockclick();"><font color = "#ff0000"><strong>X</strong></font></button>
+<button id = "bupdate" onclick = "updateblockclick();"><font color = "#ff0000"><strong>O</strong></font></button>
+<br>
+<input type= "checkbox" id = "checkcustomattr">CUSTOM ATTR</input>
+<input type = "text" id = "boxcustomattr" value = "0"></input>
+<br>
+<input type= "checkbox" id = "checkusecharset">DATA BIT 7</input>
+<br>
+<input type= "checkbox" id = "checkbit6">DATA BIT 6</input>
+<br>
+<input type= "checkbox" id = "checkbit5">DATA BIT 5</input>
+<br>
+
+<input type= "checkbox" id = "checkdownstairs">DOWNSTAIRS REPEAT</input>
+<br>
+<input type= "checkbox" id = "checkupstairs">UPSTAIRS REPEAT</input>
+<br>
+
+
+WRAP MODE X 
+<input type = "text" id = "inputwmx" value = "0"></input>
+<br>
+WRAP MODE Y 
+<input type = "text" id = "inputwmy" value = "0"></input>
+<br>
+<input type= "checkbox" id = "checkusedata">BLOCK DATA</input>
+<input type = "text" id = "boxdata" value = "0"></input>
+</td>
+</tr>
+</table>
+<table border = "3">
+<tr>
+<td>
+Entry point 
+<input type = "text" id = "entrypoint" value = "24320"></input>
+</td>
+<td>
+Map address  
+<input type = "text" id = "mapaddress" value = "49152"></input>
+</td>
+</tr>
+<tr>
+<td>
+Tileset address  
+<input type = "text" id = "tilesetaddress" value = "63232"></input>
+</td>
+<td>
+Tileset attr address  
+<input type = "text" id = "tilesetattraddress" value = "65280"></input>
+</td>
+</tr>
+
+<tr>
+<td>
+Spriteset address  
+<input type = "text" id = "spritesetaddress" value = "60160"></input>
+</td>
+<td>
+Screen$ file 
+<input type = "file" id = "screenfile"></input>
+</td>
+
+</tr>
+
+
+<tr>
+<td>
+Program name
+<input type = "text" id = "programname" value = "Program"></input>
+</td>
+
+<td>
+<button id = "dtoploader" onclick = "downloadtaploader();">DOWNLOAD TAP LOADER</button>
+<button id = "copyinitfunc" onclick = "getinitfunc();">Generate init() for Boriel Basic</button>
+
+
+</td>
+
+
+</tr>
+
+
+</table>
+
+
+
+
+
+<!--embed type="text/plain" id="testext" src="prueba.txt" width="300" height="300"--!>
+
+<!-- object id="testext" src="prueba.txt" width="300" height="300"--!>
+
+
+<button id = "preset0" onclick = "gpreset(0);">DEFAULT PRESET</button>
+ All data above BFFFH. Up to 96 sprites, almost 11k for map, about 18k for program
+<br>
+
+<button id = "preset1" onclick = "gpreset(1);">MEDIUM MAP PRESET</button>
+ Tileset on low ram. Up to 96 sprites, 13k for map, about 16k for program
+<br>
+
+<button id = "preset2" onclick = "gpreset(2);">LARGE MAP PRESET</button>
+ Tileset on low ram, sprites below C000H. Up to 96 sprites, 16k for map, about 13k for program
+<br>
+
+<button id = "preset3" onclick = "gpreset(3);">MAX SPRITES PRESET</button>
+ Tileset on low ram. Up to 256 sprites, 8k for map, about 16k for program
+<br>
+
+
+<button id = "preset4" onclick = "gpreset(4);">MAX DATA PRESET</button>
+ Tileset on low ram, sprites below C000H. Up to 256 sprites, 16k for map, about 7k for program
+
+<br>
+
+
+
+<script>
+// inicio
+
+
+window.onload = function() {
+  ctxts.drawImage(tileset,0,0,256,256);
+
+  
+}
+
+
+
+var canvasmapeador = document.getElementById("canvas_mapeador");
+var ctx = canvasmapeador.getContext("2d");
+var tileset = document.getElementById("tset");
+var canvastileset = document.getElementById("canvas_tiles");
+var ctxts = canvastileset.getContext("2d");
+
+var bloques = [];
+var paginaactual = 0;
+var bloqueactual = -1;
+
+
+var selectedtilex = -1;
+var selectedtyley = -1;
+
+var bldragx, bldragy;
+
+document.getElementById("canvas_tiles").addEventListener("click", tilesetclick);
+
+document.getElementById("canvas_mapeador").addEventListener("mousedown", map_mousedown);
+document.getElementById("canvas_mapeador").addEventListener("mouseup", map_mouseup);
+
+
+
+reset();
+
+
+
+
+
+
+function clearpage() {
+  var arx, ary
+
+
+    bloques[paginaactual] = [];
+    for (ary=0;ary<256;ary++) {
+      bloques[paginaactual][ary] = [];
+      for (arx=0;arx<11;arx++) {
+        bloques[paginaactual][ary][arx]=-1;
+      };
+    };
+
+  bloqueactual = -1;
+
+refresh();
+
+
+}
+
+
+
+
+function loadmap2() { 
+var bbx, bby, bbz;
+var arrpag;
+var arrbloq;
+var arrdata;
+
+var serializado = prompt("DATA");
+
+arrpag = serializado.split("@");
+
+
+clearpage();
+
+for (bbx = 0; bbx < 256; bbx++) { // pantalla
+
+  arrbloq = arrpag[bbx].split("#");
+
+
+  for (bby = 0; bby < arrbloq.length; bby++) { // bloque
+
+    if (arrbloq[bby].length > 0) {
+
+      arrdata = arrbloq[bby].split(",");
+
+      for (bbz = 0; bbz < 11; bbz++) { // descriptores
+        bloques[bbx][bby][bbz] = arrdata[bbz].toString();
+      }
+    } else {
+    }
+    
+
+
+  }
+}
+
+refresh();
+
+
+}
+
+
+
+
+function loadmap() { // obsoleto
+
+
+var serializado = prompt("DATA");
+
+//alert(serializado.length);
+
+bloques = JSON.parse(serializado);
+
+if (bloques[0][0][0] >= 0) {
+
+bloqueactual = 0;
+paginaactual = 0;
+
+refresh();
+} else {
+bloqueactual = -1;
+paginaactual = 0;
+}
+
+//alert (serializado);
+
+}
+
+function savemap() {
+
+
+var nomarch;
+
+
+
+var serializado;
+
+serializado = "";
+
+
+var bbx, bby, bbz;
+
+
+// var serializado = JSON.stringify (bloques);
+
+
+
+for (bbx = 0; bbx < bloques.length; bbx++) {
+  for (bby = 0; bby < bloques[bbx].length; bby++) {
+
+    if (bloques[bbx][bby][0]<0) {
+      serializado = serializado + "@";
+      break;
+    } else {
+      for (bbz = 0; bbz < bloques[bby].length; bbz++) {
+        if (bloques[bbx][bby][bbz]===undefined) {
+          break;
+        }
+        serializado = serializado + bloques[bbx][bby][bbz] + ",";
+      }
+      serializado = serializado + "#";
+    }
+  }
+}
+
+
+//alert (serializado);
+
+navigator.clipboard.writeText(serializado);
+
+alert("SAVED TO CLIPBOARD");
+
+}
+
+
+
+/*
+function exportmap_bin () {
+
+  var filename = "map.bin";
+  var buftemp = [];
+  var buflen;
+
+  buflen = 0;
+
+
+
+  
+
+
+
+  var data = new Uint8Array(200);
+
+data[0] = 65;
+data[1] = 66;
+data[2] = 67;
+data[3] = 68;
+data[4] = 69;
+data[5] = 70;
+data[6] = 71;
+data[7] = 72;
+data[8] = 73;
+data[9] = 74;
+
+
+
+    const blob = new Blob([data], {type: 'application/octet-stream'});
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;        
+        document.body.appendChild(elem);
+        elem.click();        
+        document.body.removeChild(elem);
+    }
+
+
+}
+
+*/
+
+
+function exportmap(solobin) {
+
+
+
+
+
+
+
+
+
+var swapx1, swapy1, swapx2, swapy2
+
+  var buftemp = [];
+  var buflen;
+  buflen = 0;
+
+
+
+
+var bll = new Blob([document.getElementById("testext")], {type:"text/plain"});
+
+
+
+
+  var toppage, auxz, auxx, auxy, memconta;
+
+
+  var contadorbloques = [] , direccionesbloques = [];
+  var detallebloques = [];
+
+  var orgg;
+
+  var bitmix;
+  
+
+
+  var textosalida;
+
+// vamos a usar mejor la "cuarta página" en preparacion del 128
+//  memconta = prompt("MEMORY LOCATION:","32768");
+//  memconta = prompt("MEMORY LOCATION:","49152");
+
+memconta = 49152
+
+  orgg = memconta;
+
+
+  textosalida = "org " + memconta + ": ; Begin of map data\n";
+
+  //buftemp[buflen++] =  (memconta & 0xff) ; // el org no va dentro!!!
+  //buftemp[buflen++] =  ((memconta >> 8) & 0xff);
+  
+
+
+
+  auxz = 0;
+  auxx = 0;
+
+  while (auxz < 256) {
+    if (bloques[auxz][0][0] < 0) {
+    auxz = 256;
+    }  
+    auxz++;
+    auxx++;
+  }
+
+
+  
+  if (auxz == 257) {
+  auxz = auxx - 1;
+  } else {
+  }
+
+
+//alert (auxz);
+
+
+
+
+  if (auxz <= 256) {
+    toppage = auxz;
+
+
+
+// quitaremos el byte de las paginas... total, no ns sirve
+//    textosalida = textosalida + "db " + toppage + "; Total pages\n";
+    textosalida = textosalida + "; " + toppage + " Total pages\n";
+
+
+
+    for (auxz = 0; auxz < toppage; auxz++) {
+      contadorbloques[auxz] = 0;
+      auxx = 0;
+      while (auxx < 256) {
+        if (bloques[auxz][auxx][0]>=0) {
+          contadorbloques[auxz]++;
+        }
+        auxx++;
+      }
+    }
+
+
+//    memconta = 1 + parseInt(memconta) + 3 * toppage;
+// un byte menos
+    memconta = 2 + parseInt(memconta) + 2 * toppage; // cambiamos a 2, quitaremos el contador de bloques. Tambien añadimos 2 por el indice falso final
+
+    for (auxz = 0; auxz < toppage; auxz++) {
+
+      auxx = 0;
+      detallebloques[auxz] =  [];
+
+      direccionesbloques[auxz] = memconta;
+     
+      
+      for (auxy = 0; auxy < contadorbloques[auxz]; auxy++) {
+ 
+
+  
+
+
+
+
+
+
+// 1 custom attr , 2 use charset , 4 punto , 8 dato
+// ya no es ni use charset.. ahora biy 7
+
+
+        swapy1 = parseInt(bloques[auxz][auxy][3]);
+        swapy2 = parseInt(bloques[auxz][auxy][5]);
+
+        if (parseInt(bloques[auxz][auxy][10])==0) {
+
+        swapx1 = parseInt(bloques[auxz][auxy][2]);
+        swapx2 = parseInt(bloques[auxz][auxy][4]);
+        } else {
+        swapx1 = parseInt(bloques[auxz][auxy][4])-1;
+        swapx2 = parseInt(bloques[auxz][auxy][2])+1;
+        }
+
+
+        if (parseInt(bloques[auxz][auxy][10])==2) {
+
+        swapy1 = parseInt(bloques[auxz][auxy][5])-1;
+        swapy2 = parseInt(bloques[auxz][auxy][3])+1;
+ 
+        }
+
+
+
+
+
+
+
+	detallebloques[auxz][auxx] = parseInt(bloques[auxz][auxy][1]); // tile
+
+        bitmix = ((parseInt(bloques[auxz][auxy][0])) & 3) << 5;
+
+        bitmix = bitmix | ((parseInt(bloques[auxz][auxy][0])) & 16) << 3;
+
+	detallebloques[auxz][auxx+1] = swapx1 | bitmix; // x1 + flags custom atr y use charset
+
+        bitmix = ((parseInt(bloques[auxz][auxy][0])) & 0xc) << 3;
+
+        bitmix = bitmix | ((parseInt(bloques[auxz][auxy][0])) & 32) << 2;
+
+	detallebloques[auxz][auxx+2] = swapy1 | bitmix; // y1 + flags punto y dato
+
+
+
+        auxx = auxx + 3;
+
+        bitmix = parseInt(bloques[auxz][auxy][0]);
+
+
+        if ((bitmix & 1) !=0) {
+          detallebloques[auxz][auxx] = parseInt(bloques[auxz][auxy][9]);
+          auxx++;
+        }
+
+        bitmix = bloques[auxz][auxy][0];
+
+        if ((bitmix & 4) ==0) {
+          bitmix = ((parseInt(bloques[auxz][auxy][6])) & 0x7) << 5;
+          detallebloques[auxz][auxx] = (swapx2-1) | bitmix;
+          bitmix = ((parseInt(bloques[auxz][auxy][7])) & 0x7) << 5;
+          detallebloques[auxz][auxx+1] = (swapy2-1) | bitmix;
+          auxx = auxx + 2;
+        }
+
+        bitmix = parseInt(bloques[auxz][auxy][0]);
+
+        if ((bitmix & 8) !=0) {
+          detallebloques[auxz][auxx] = parseInt(bloques[auxz][auxy][8]);
+          auxx++;
+        }
+
+
+
+
+
+
+
+ 
+        
+      }
+
+      memconta = parseInt(memconta) + auxx;
+
+      detallebloques[auxz][auxx] = -1;
+
+    }
+
+
+//memconta = parseInt(memconta) + auxx;
+direccionesbloques[auxz] = memconta;
+
+
+ //   textosalida = textosalida + "; Index table (block count, location)\n"
+textosalida = textosalida + "; Index table\n"
+
+
+  for (auxz = 0; auxz < toppage ; auxz++) {
+   // textosalida = textosalida + "db " + contadorbloques[auxz] + "; Page " + auxz + "\n";
+
+    textosalida = textosalida + "dw " + direccionesbloques[auxz];
+
+    buftemp[buflen++] = (parseInt(direccionesbloques[auxz]) & 0xff);
+    buftemp[buflen++] = ((parseInt(direccionesbloques[auxz])>>8)& 0xff);
+
+textosalida = textosalida + " ; Page " + auxz + "\n";
+  }
+
+    textosalida = textosalida + "dw " + direccionesbloques[auxz] ;
+
+textosalida = textosalida + " ; Closing index " + "\n";
+
+    buftemp[buflen++] = (parseInt(direccionesbloques[auxz]) & 0xff);
+    buftemp[buflen++] = ((parseInt(direccionesbloques[auxz])>>8)& 0xff);
+
+
+  for (auxz = 0; auxz < toppage; auxz++) {
+    textosalida = textosalida + "; Data for page " + auxz + "\n";
+    auxx = 0;
+//    for (auxy = 0; auxy < contadorbloques[auxz]; auxy++) {
+
+      textosalida = textosalida + "db ";
+
+      while (auxx >= 0) {
+
+        if (detallebloques[auxz][auxx] >= 0) {
+          textosalida = textosalida + detallebloques[auxz][auxx];
+
+          buftemp[buflen++] = parseInt(detallebloques[auxz][auxx]);
+
+/*
+if (buflen == 77) {
+alert (buftemp[buflen-1]);
+alert(detallebloques[auxz][auxx]);
+}
+*/
+
+          auxx ++;
+          if (detallebloques[auxz][auxx] != -1) {
+            textosalida = textosalida + " , ";
+          } else {
+            textosalida = textosalida + "\n";
+          }
+        } else {
+          auxx = -1;
+        }
+ //     }
+    }
+  }
+
+
+
+  }
+
+  textosalida = textosalida + ";Total bytes: " + (parseInt(memconta) - parseInt(orgg)) + "\n";
+
+
+
+
+if (!solobin) {
+
+
+var serializado = JSON.stringify (textosalida);
+
+
+
+
+navigator.clipboard.writeText(textosalida);
+
+alert("EXPORTED TO CLIPBOARD");
+
+ // alert (textosalida);
+
+  } else {
+
+
+
+ var filename = "map.bin";
+
+
+
+  //var data = new Uint8Array(buflen);
+
+  var data = new Uint8Array(buftemp)
+
+  //for (auxx = 0; auxx < buflen; auxx++) {
+  //  data[auxx] = buftemp[auxx];
+  //}
+
+
+//alert (buflen)
+
+
+    const blob = new Blob([data], {type: 'application/octet-stream'});
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;        
+        document.body.appendChild(elem);
+        elem.click();        
+        document.body.removeChild(elem);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+}
+
+/*
+function updateblockclick() {
+}
+*/
+
+
+function uppageclick() {
+  paginaactual = paginaactual - 16;
+  paginaactual = paginaactual & 0xff;
+  bloqueactual = - 1;
+  refresh();
+};
+
+function downpageclick() {
+  paginaactual = paginaactual + 16;
+  paginaactual = paginaactual & 0xff;
+  bloqueactual = - 1;
+  refresh();
+};
+
+
+function prevpageclick() {
+  paginaactual--;
+  paginaactual = paginaactual & 0xff;
+  bloqueactual = - 1;
+  refresh();
+};
+
+function nextpageclick() {
+  paginaactual++;
+  paginaactual = paginaactual & 0xff;
+
+  bloqueactual = - 1;
+
+  refresh();
+
+};
+
+function prebblockclick() {
+  bloqueactual--;
+  bloqueactual = bloqueactual & 0xff;
+
+
+  refresh();
+};
+
+function nextblockclick() {
+  bloqueactual++;
+  bloqueactual = bloqueactual & 0xff;
+
+  refresh();
+
+};
+
+function tobackclick() {
+
+toback();
+
+};
+
+function tofrontclick() {
+
+tofront();
+
+};
+
+function deleteblockclick() {
+
+deleteblock();
+
+};
+
+
+
+function updateblockclick() {
+
+var flagss;
+
+var stairs;
+
+var pxyaux;
+
+//alert ("aa");
+  if (bloqueactual >= 0) {
+
+
+
+
+
+    bloques[paginaactual][bloqueactual][6] = document.getElementById("inputwmx").value;
+    bloques[paginaactual][bloqueactual][7] = document.getElementById("inputwmy").value;
+
+
+flagss = bloques[paginaactual][bloqueactual][0] & 4;
+stairs = bloques[paginaactual][bloqueactual][10];
+
+
+if (document.getElementById("checkcustomattr").checked) {
+  flagss = flagss | 1;
+}
+if (document.getElementById("checkusecharset").checked) {
+//alert("");
+  flagss = flagss | 2;
+}
+
+if (document.getElementById("checkusedata").checked) {
+  flagss = flagss | 8;
+}
+
+if (document.getElementById("checkbit6").checked) {
+  flagss = flagss | 16;
+}
+
+if (document.getElementById("checkbit5").checked) {
+  flagss = flagss | 32;
+}
+
+
+stairs = 0;
+
+if (document.getElementById("checkdownstairs").checked) {
+  stairs = 1;
+}
+
+if (document.getElementById("checkupstairs").checked) {
+  stairs = 2;
+}
+
+
+
+
+
+
+bloques[paginaactual][bloqueactual][0] = flagss; // flags: 1 - custom attr, 2 - use charset, 4 - solo x1y1 (implicito), 8 - use data
+
+bloques[paginaactual][bloqueactual][6] = document.getElementById("inputwmx").value; // modo wrap x
+bloques[paginaactual][bloqueactual][7] = document.getElementById("inputwmy").value; // modo wrap y
+bloques[paginaactual][bloqueactual][8] = document.getElementById("boxdata").value; // dato
+bloques[paginaactual][bloqueactual][9] = document.getElementById("boxcustomattr").value; // custom attrib
+bloques[paginaactual][bloqueactual][10] = stairs;
+
+
+
+
+
+refresh();
+}
+
+
+
+};
+
+function refresh() {
+  var contabloc;
+  var rej;
+
+
+
+
+
+  clearscreen();
+  document.getElementById("lnumpage").innerHTML=paginaactual;
+
+  if (bloqueactual >= 0) {
+    document.getElementById("lnumbloc").innerHTML=bloqueactual;
+  } else {
+    document.getElementById("lnumbloc").innerHTML = "";
+  };
+
+  ctxts.drawImage(tileset,0,0,256,256);
+
+  for (contabloc = 0; contabloc < 256; contabloc++) {
+    if (bloques[paginaactual][contabloc][0] >= 0) {
+      imprimir_bloque (paginaactual, contabloc);
+//alert(contabloc);
+    }
+  }
+//alert("kaka");
+
+//alert("hh");
+  selectedtilex = -1;
+  selectedtiley = -1;
+
+
+
+ctx.lineWidth = "1";
+
+for (rej=16;rej < 512; rej = rej + 16) {
+  ctx.beginPath();
+  ctx.strokeStyle = "#7f7f7f";
+
+  if (rej == 128) {
+    ctx.strokeStyle = "#cfcfcf";
+  }
+
+  if (rej == 256) {
+    ctx.strokeStyle = "#cfcfcf";
+  }
+
+  if (rej == 384) {
+    ctx.strokeStyle = "#cfcfcf";
+  }
+
+  ctx.moveTo(rej,0);
+  ctx.lineTo(rej,384);
+  ctx.stroke();
+}
+
+
+for (rej=16;rej < 384; rej = rej + 16) {
+
+  ctx.beginPath();
+
+  ctx.strokeStyle = "#7f7f7f";
+
+  if (rej == 128) {
+    ctx.strokeStyle = "#cfcfcf";
+  }
+
+  if (rej >= 256) {
+    ctx.strokeStyle = "#7fff7f";
+  }
+  if (rej >= 320) {
+    ctx.strokeStyle = "#ffff7f";
+  }
+  if (rej >= 352) {
+    ctx.strokeStyle = "#ff7f7f";
+  }
+
+  ctx.moveTo(0,rej);
+  ctx.lineTo(512,rej);
+
+  ctx.stroke();
+
+}
+
+
+//alert("");
+
+  marcarbloqueactual();
+
+
+
+  try {
+
+
+if ((Number.parseInt(bloques[paginaactual][bloqueactual][2])) > (Number.parseInt(bloques[paginaactual][bloqueactual][4]))) {
+  if ((Number.parseInt(bloques[paginaactual][bloqueactual][3])) > (Number.parseInt(bloques[paginaactual][bloqueactual][5]))) {
+    document.getElementById("checkdownstairs").checked = 1;
+    document.getElementById("checkupstairs").checked = 0;
+  } else {
+    document.getElementById("checkdownstairs").checked = 0;
+    document.getElementById("checkupstairs").checked = 1;
+  }
+} else {
+  document.getElementById("checkdownstairs").checked = 0;
+  document.getElementById("checkupstairs").checked = 0;
+}
+
+
+
+
+
+
+
+
+
+  if ((bloques[paginaactual][bloqueactual][0] & 2) == "0") {
+    document.getElementById("checkusecharset").checked=0;
+  } else {
+    document.getElementById("checkusecharset").checked=1;
+  }
+
+  if ((bloques[paginaactual][bloqueactual][0] & 16) == "0") {
+    document.getElementById("checkbit6").checked=0;
+  } else {
+    document.getElementById("checkbit6").checked=1;
+  }
+
+  if ((bloques[paginaactual][bloqueactual][0] & 32) == "0") {
+    document.getElementById("checkbit5").checked=0;
+  } else {
+    document.getElementById("checkbit5").checked=1;
+  }
+
+  if ((bloques[paginaactual][bloqueactual][0] & 1) == "0") {
+    document.getElementById("checkcustomattr").checked=0;
+    document.getElementById("boxcustomattr").value="0";
+  } else {
+    document.getElementById("checkcustomattr").checked=1;
+
+
+    document.getElementById("boxcustomattr").value = bloques[paginaactual][bloqueactual][9];
+  }
+
+
+  if ((bloques[paginaactual][bloqueactual][0] & 8) == "0") {
+    document.getElementById("checkusedata").checked=0;
+    document.getElementById("boxdata").value="0";
+  } else {
+    document.getElementById("checkusedata").checked=1;
+
+    document.getElementById("boxdata").value = bloques[paginaactual][bloqueactual][8];
+  }
+
+
+
+  if (bloques[paginaactual][bloqueactual][0] < 0) {
+    document.getElementById("checkusecharset").checked=0;
+    document.getElementById("checkusedata").checked=0;
+    document.getElementById("checkcustomattr").checked=0;
+    document.getElementById("checkbit6").checked=0;
+    document.getElementById("checkbit5").checked=0;
+    document.getElementById("checkdownstairs").checked = 0;
+    document.getElementById("checkupstairs").checked = 0;
+  } else {
+    document.getElementById("inputwmx").value= bloques[paginaactual][bloqueactual][6];
+    document.getElementById("inputwmy").value= bloques[paginaactual][bloqueactual][7];
+
+  }
+
+
+
+  if ((bloques[paginaactual][bloqueactual][10]) == 1) {
+    document.getElementById("checkdownstairs").checked = 1;
+  }
+  if ((bloques[paginaactual][bloqueactual][10]) == 2) {
+    document.getElementById("checkupstairs").checked = 1;
+  }
+
+
+
+
+  } catch (e) {
+//alert(e.toString());
+  }
+
+
+
+
+
+
+};
+
+
+
+function deleteblock() {
+
+  var bucli;
+  var ultb;
+  var nuevalista = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+
+  if (bloqueactual >= 0) {
+
+    ultb = getnextblock(paginaactual);
+    ultb --;
+
+    for (bucli = bloqueactual; bucli < ultb; bucli ++) {
+      bloques[paginaactual][bucli] = bloques[paginaactual][bucli+1];
+    }
+
+   
+    bloques[paginaactual][ultb] = nuevalista;
+
+
+    bloqueactual = -1;
+
+  }
+
+
+  refresh();
+
+
+};
+
+
+
+function toback() {
+
+  var auxi;
+  var bucli;
+  var ultb;
+
+  if (bloqueactual >= 0) {
+    ultb = getnextblock(paginaactual);
+    ultb --;
+
+    auxi = bloques[paginaactual][bloqueactual];
+
+    for (bucli = bloqueactual - 1; bucli >= 0; bucli --) {
+      bloques[paginaactual][bucli + 1] = bloques[paginaactual][bucli];
+    }
+
+    bloques[paginaactual][0] = auxi;
+
+
+    bloqueactual = 0;
+
+  }
+
+  refresh();
+
+
+};
+
+function tofront() {
+
+  var auxi;
+  var bucli;
+  var ultb;
+
+  if (bloqueactual >= 0) {
+
+    ultb = getnextblock(paginaactual);
+    ultb --;
+
+    auxi = bloques[paginaactual][bloqueactual];
+
+    for (bucli = bloqueactual; bucli < ultb; bucli ++) {
+      bloques[paginaactual][bucli] = bloques[paginaactual][bucli+1];
+    }
+
+    bloques[paginaactual][ultb] = auxi;
+
+
+    bloqueactual = ultb;
+
+  }
+
+
+  refresh();
+
+};
+
+
+
+
+
+function reset() {
+
+  var arx, ary, arz
+
+  for (arz=0;arz<256;arz++) {
+    bloques[arz] = [];
+    for (ary=0;ary<256;ary++) {
+      bloques[arz][ary] = [];
+      for (arx=0;arx<11;arx++) {
+        bloques[arz][ary][arx]=-1;
+      };
+    };
+  };
+
+  paginaactual = 0;
+  bloqueactual = -1;
+
+refresh();
+
+};
+
+function clearscreen () {
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, 512, 512);
+};
+
+
+function tilesetclick (mevent) {
+
+var posx, posy;
+
+posx = mevent.clientX;
+posy = mevent.clientY;
+
+posx = posx - canvastileset.getBoundingClientRect().left;
+posy = posy - canvastileset.getBoundingClientRect().top;
+
+posx = posx & 0xf0;
+posy = posy & 0xf0;
+
+selectedtilex = posx;
+selectedtiley = posy;
+
+//alert (canvastileset.getBoundingClientRect().left);
+//alert (posx);
+
+//posx = 30;
+//posy = 30;
+
+ctxts.drawImage(tileset,0,0,256,256);
+
+
+ctxts.beginPath();
+ctxts.lineWidth = "2";
+ctxts.strokeStyle = "#ffff00";
+ctxts.rect(posx,posy,16,16);
+ctxts.stroke();
+ctxts.beginPath();
+ctxts.lineWidth = "2";
+ctxts.strokeStyle = "#00ff00";
+ctxts.rect(posx+2,posy+2,12,12);
+ctxts.stroke();
+
+//alert ("A");
+
+
+};
+
+
+function firstblock(posx , posy) {
+
+  var resul = -1;
+
+  var bucz;
+
+  for (bucz=0;bucz<256;bucz++) {
+    if (bloques[paginaactual][bucz][0] >=0) {
+      if ((posx >= bloques[paginaactual][bucz][2]) && (posy >= bloques[paginaactual][bucz][3]) && (posx < bloques[paginaactual][bucz][4]) && (posy < bloques[paginaactual][bucz][5])) {
+
+        resul = bucz;
+      }
+    }
+  }
+
+
+  bloqueactual = resul;
+
+}
+
+function marcarbloqueactual() {
+
+  var checks;
+
+  if (bloqueactual>=0) {
+
+/*
+alert(bloques[paginaactual][bloqueactual][0]);
+alert(bloques[paginaactual][bloqueactual][1]);
+alert(bloques[paginaactual][bloqueactual][2]);
+alert(bloques[paginaactual][bloqueactual][3]);
+alert(bloques[paginaactual][bloqueactual][4]);
+alert(bloques[paginaactual][bloqueactual][5]);
+alert(bloques[paginaactual][bloqueactual][6]);
+alert(bloques[paginaactual][bloqueactual][7]);
+alert(bloques[paginaactual][bloqueactual][8]);
+alert(bloques[paginaactual][bloqueactual][9]);
+*/
+
+  var px1,py1,px2,py2, pxyaux;
+  px1 = (bloques[paginaactual][bloqueactual][2]) << 4;
+  py1 = (bloques[paginaactual][bloqueactual][3]) << 4;
+  px2 = (bloques[paginaactual][bloqueactual][4]) << 4;
+  py2 = (bloques[paginaactual][bloqueactual][5]) << 4;
+
+/*
+
+  if (px1<px2) {
+    document.getElementById("checkdownstairs").checked = 0;
+    document.getElementById("checkupstairs").checked = 0;
+  } else {
+
+    pxyaux = px1;
+    px1 = px2;
+    px2 = pxyaux;
+
+    if (py1<py2) {
+      document.getElementById("checkdownstairs").checked = 1;
+      document.getElementById("checkupstairs").checked = 0;
+    } else {
+
+      pxyaux = py1;
+      py1 = py2;
+      py2 = pxyaux;
+
+      document.getElementById("checkdownstairs").checked = 0;
+      document.getElementById("checkupstairs").checked = 1;
+    }
+  }
+
+*/
+
+
+
+
+ctx.beginPath();
+ctx.lineWidth = "2";
+ctx.strokeStyle = "#ffff00";
+ctx.rect(px1,py1,px2 - px1, py2 - py1);
+ctx.stroke();
+ctx.beginPath();
+ctx.lineWidth = "2";
+ctx.strokeStyle = "#00ff00";
+ctx.rect(px1 + 2,py1 + 2,px2 - px1 -4, py2 - py1 -4);
+ctx.stroke();
+
+  }
+
+/* // Bueno.. esto ya veremos...
+  if ((px1==px2) || (py1==py2)) {    
+    checks = document.getElementById("checkdownstairs");
+    checks.hidden = true;
+    checks = document.getElementById("checkupstairs");
+    checks.hidden = true;
+  } else {
+    checks = document.getElementById("checkdownstairs");
+    checks.hidden = false;
+    checks = document.getElementById("checkupstairs");
+    checks.hidden = false;
+  }
+*/
+
+}
+
+
+function map_mousedown(mevent) {
+  var ppx,ppy
+
+    ppx =  mevent.clientX;
+    ppy =  mevent.clientY;
+
+    ppx = ppx - canvasmapeador.getBoundingClientRect().left;
+    ppy = ppy - canvasmapeador.getBoundingClientRect().top;
+
+    ppx = ppx >> 4;
+    ppy = ppy >> 4;
+
+
+
+  if (selectedtilex < 0) {
+
+firstblock(ppx,ppy)
+  //   alert(bloqueactual);
+
+  refresh();
+
+
+  } else {
+
+    bldragx =  ppx;
+    bldragy =  ppy;
+
+  }
+
+}
+
+function map_mouseup(mevent) {
+
+  if (selectedtilex >= 0) {
+
+  var auxsw;
+
+  var flagss;
+  var stairs;
+
+  flagss = 0;
+  stairs = 0;
+
+  var bldropx, bldropy;
+  var bloqqq;
+
+  bldropx =  mevent.clientX;
+  bldropy = mevent.clientY;
+
+  bldropx = bldropx - canvasmapeador.getBoundingClientRect().left;
+  bldropy = bldropy - canvasmapeador.getBoundingClientRect().top;
+
+/*
+  document.getElementById("checkdownstairs").checked = 0;
+  document.getElementById("checkupstairs").checked = 0;
+*/
+
+  bldropx = (bldropx >> 4);
+  bldropy = (bldropy >> 4);
+
+/*
+  if (bldropx == bldragx) {
+    bldropx++;
+  }
+  if (bldropy == bldragy) {
+    bldropy++;
+  }*/
+
+
+  if (bldropx < bldragx) {
+//alert("a");
+    auxsw = bldropx;
+    bldropx = bldragx;
+    bldragx = auxsw;
+//alert("b");
+  }
+
+  if (bldropy < bldragy) {
+//alert("1");
+    auxsw = bldropy;
+    bldropy = bldragy;
+    bldragy = auxsw;
+//alert("2");
+  }
+
+  if ((bldropx == bldragx) && (bldropy == bldragy)) {
+  flagss = 4;
+//alert("aa");
+  }
+
+  bldropx ++;
+  bldropy++;
+
+
+  bloqqq = getnextblock(paginaactual);
+//bloqqq = 0
+
+
+if (document.getElementById("checkcustomattr").checked) {
+  flagss = flagss | 1;
+}
+
+if (document.getElementById("checkbit6").checked) {
+  flagss = flagss | 16;
+}
+
+if (document.getElementById("checkbit5").checked) {
+  flagss = flagss | 32;
+}
+
+if (document.getElementById("checkusecharset").checked) {
+//alert("");
+  flagss = flagss | 2;
+}
+
+if (document.getElementById("checkusedata").checked) {
+  flagss = flagss | 8;
+}
+
+
+bloques[paginaactual][bloqqq][0] = flagss; // flags: 1 - custom attr, 2 - use charset, 4 - solo x1y1 (implicito), 8 - use data
+bloques[paginaactual][bloqqq][1] = (selectedtiley  & 0xf0) | (selectedtilex  >> 4); // numero tile
+bloques[paginaactual][bloqqq][2] = bldragx; // x1 bloque
+bloques[paginaactual][bloqqq][3] = bldragy; // y1 bloque
+bloques[paginaactual][bloqqq][4] = bldropx; // x2 bloque - luego será opcional
+bloques[paginaactual][bloqqq][5] = bldropy; // y2 bloque
+
+
+bloques[paginaactual][bloqqq][6] = document.getElementById("inputwmx").value; // modo wrap x
+bloques[paginaactual][bloqqq][7] = document.getElementById("inputwmy").value; // modo wrap y
+bloques[paginaactual][bloqqq][8] = document.getElementById("boxdata").value; // dato
+bloques[paginaactual][bloqqq][9] = document.getElementById("boxcustomattr").value; // custom attrib
+
+
+
+stairs = 0
+
+if (document.getElementById("checkdownstairs").checked) {
+  stairs = 1;
+}
+
+if (document.getElementById("checkupstairs").checked) {
+  stairs = 2;
+}
+
+bloques[paginaactual][bloqqq][10] = stairs;
+
+
+
+
+
+bloqueactual = bloqqq;
+
+refresh();
+//alert("a");
+}
+
+}
+
+
+function imprimir_bloque(pagg,bloqq) {
+
+
+  var ppx, ppy, desplx, desply;
+  var destx,desty,orgx,orgy;
+
+  var maxwrx, maxwry;
+  var iniwrx, iniwry;
+  var finwrx, finwry;
+
+
+  var repdir;
+  var reppivot_1;
+  var reppivot_2;
+  var repadd;
+
+
+
+
+  var contawrx, contawry;
+
+
+desplx = 0;
+desply = 0;
+
+maxwrx = 0;
+iniwrx = 0;
+finwrx = 0;
+
+contawrx = 0;
+
+maxwry = 0;
+iniwry = 0;
+finwry = 0;
+
+contawry = 0;
+
+repdir = bloques[pagg][bloqq][10];
+
+
+
+//alert(bloques[pagg][bloqq][6]);
+
+
+switch (bloques[pagg][bloqq][6].toString()) {
+  case "0":
+// nada especial
+  break;
+  case "1":
+    maxwrx = 255; // por poner algo
+  break;
+  case "2":
+    maxwrx = 1;
+  break;
+  case "3":
+    maxwrx = 2;
+  break;
+  case "4":
+    maxwrx = 3;
+  break;
+  case "5":
+    maxwrx = 4;
+  break;
+  case "6":
+    maxwrx = 5;
+  break;
+  case "7":
+    maxwrx = 6;
+  break;
+
+}
+
+
+
+
+switch (bloques[pagg][bloqq][7].toString()) {
+  case "0":
+// nada especial
+  break;
+  case "1":
+    maxwry = 255; // por poner algo
+  break;
+  case "2":
+    maxwry = 1;
+  break;
+  case "3":
+    maxwry = 2;
+  break;
+  case "4":
+    maxwry = 3;
+  break;
+  case "5":
+    maxwry = 4;
+  break;
+  case "6":
+    maxwry = 5;
+  break;
+  case "7":
+    maxwry = 6;
+  break;
+
+}
+
+
+
+// OJO: en el otro lado ajustar: en las coordenadas "2" el valor se decrementa en uno!!
+
+  reppivot_1 = Number.parseInt(bloques[pagg][bloqq][2]);
+  reppivot_2 = Number.parseInt(bloques[pagg][bloqq][4]);
+  repadd = 0;
+
+
+  if (repdir == 1) {
+    repadd = maxwrx + 1;
+    reppivot_2 = Number.parseInt(bloques[pagg][bloqq][2]) + repadd;
+  } 
+  if (repdir == 2) {
+    repadd = - (maxwrx + 1);
+    reppivot_1 = Number.parseInt(bloques[pagg][bloqq][4]) + repadd;
+  }
+
+
+
+  for (ppy = Number.parseInt(bloques[pagg][bloqq][3]); ppy < Number.parseInt(bloques[pagg][bloqq][5]); ppy++) {
+      desplx = 0;
+      for (ppx = Number.parseInt(bloques[pagg][bloqq][2]); ppx < Number.parseInt(bloques[pagg][bloqq][4]); ppx++) {
+
+
+
+
+
+        destx = ppx << 4;
+        desty = ppy << 4;
+
+
+        orgx = bloques[pagg][bloqq][1] & 0xf;
+ 
+
+ 
+        orgy = bloques[pagg][bloqq][1] >> 4;
+
+
+
+ 
+        orgx = ((orgx + desplx) << 3);
+        orgy = ((orgy + desply) << 3);
+
+
+
+
+        if (desplx < maxwrx) {
+          desplx++;
+
+        } else {
+          desplx = 0;
+        }
+
+
+if (( ppx >= (reppivot_1) ) && ( ppx < (reppivot_2) )) {
+
+ctx.drawImage(tileset,orgx,orgy,8,8,destx,desty,16,16);
+
+}
+
+
+
+
+      }
+
+        if (desply < maxwry) {
+          desply++;
+
+        } else {
+          desply = 0;
+
+reppivot_1 = reppivot_1 + repadd;
+reppivot_2 = reppivot_2 + repadd;
+
+        }
+
+  }
+
+
+
+
+
+
+
+
+
+}
+
+
+function getnextblock(pagg) {
+  var resul = 0;
+  var buc = 0;
+
+  while (buc < 256) {
+    if (bloques[pagg][buc][0] <0) {
+      resul = buc;
+      buc = 256;
+    }
+  buc++;
+  }
+
+  return resul;
+
+}
+
+
+function gpreset(modo) {
+
+ var ventrypoint = document.getElementById("entrypoint");
+ var vmapaddress = document.getElementById("mapaddress");
+ var vtilesetaddress = document.getElementById("tilesetaddress");
+ var vtilesetattraddress = document.getElementById("tilesetattraddress");
+ var vspritesetaddress = document.getElementById("spritesetaddress");
+
+
+
+
+ switch (parseInt(modo)) {
+ case 0:
+   ventrypoint.value = "24320";
+   vmapaddress.value = "49152";
+   vtilesetaddress.value = "63232";
+   vtilesetattraddress.value = "65280";
+   vspritesetaddress.value = "60160";
+
+ break;
+ case 1:
+
+   ventrypoint.value = "26624";
+   vmapaddress.value = "49152";
+   vtilesetaddress.value = "24320";
+   vtilesetattraddress.value = "26368";
+   vspritesetaddress.value = "62464";
+   
+
+ break; 
+ case 2:
+
+   ventrypoint.value = "26624";
+   vmapaddress.value = "49152";
+   vtilesetaddress.value = "24320";
+   vtilesetattraddress.value = "26368";
+   vspritesetaddress.value = "39868";
+
+ break;
+ case 3:
+
+   ventrypoint.value = "26624";
+   vmapaddress.value = "49152";
+   vtilesetaddress.value = "24320";
+   vtilesetattraddress.value = "26368";
+   vspritesetaddress.value = "57344";
+
+ break;
+ case 4:
+
+   ventrypoint.value = "26624";
+   vmapaddress.value = "49152";
+   vtilesetaddress.value = "24320";
+   vtilesetattraddress.value = "26368";
+   vspritesetaddress.value = "34748";
+
+ break;
+ default:
+ break
+ }
+
+}
+
+
+
+
+function prepararDescargaTap(arrscreen) {
+
+
+
+// cabecera estandar screen$... 
+// 13 00 00 03 53 43 52 45 45 4E 20 20 20 20 00 1B 00 40 00 80 D4 02 1B FF
+
+// cabecera del cargador con screen$
+/*
+13 00 00 00 63 61 72 67 61 64 6F 72 65 73 AE 00 0A 00 AE 00 13 B0 00 FF 00 0A 9B 00 DA 30 0E 00 00 00 00 00 3A E7 30 0E 00 00 00 00 00 3A D9 32 0E 00 00 02 00 00 3A FD B0 22 32 34 33 31 39 22 3A F4 B0 22 32 33 37 33 39 22 2C AF 22 6F 22 3A EF 22 22 AA 3A EF 22 22 AF B0 22 33 32 37 36 38 22 3A EF 22 22 AF B0 22 34 36 30 35 32 22 3A EF 22 22 AF B0 22 34 39 31 35 32 22 3A EF 22 22 AF B0 22 36 31 34 34 38 22 3A EF 22 22 AF B0 22 36 32 34 37 32 22 3A EF 22 22 AF B0 22 36 32 36 30 30 22 3A F4 B0 22 32 33 37 33 39 22 2C 32 34 34 0E 00 00 F4 00 00 0D 00 14 0B 00 F9 C0 B0 22 33 32 37 36 38 22 0D 29
+*/
+
+
+
+
+
+var aux1;
+var straux;
+var loaderbytes;
+var screenbytes_h;
+var screenbytes;
+
+
+if (arrscreen.length>0) {
+
+
+
+loaderbytes = new Uint8Array(
+[0x13, 0x00, 0x00, 0x00, 0x63, 0x61, 0x72, 0x67, 0x61, 0x64, 0x6F, 0x72, 0x65, 0x73, 0xAE, 0x00, 0x0A, 0x00, 0xAE, 0x00, 0x13, 0xB0, 0x00, 0xFF, 0x00, 0x0A, 0x9B, 0x00, 0xDA, 0x30, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0xE7, 0x30, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0xD9, 0x32, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0xFD, 0xB0, 0x22, 0x32, 0x34, 0x33, 0x31, 0x39, 0x22, 0x3A, 0xF4, 0xB0, 0x22, 0x32, 0x33, 0x37, 0x33, 0x39, 0x22, 0x2C, 0xAF, 0x22, 0x6F, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAA, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x33, 0x32, 0x37, 0x36, 0x38, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x34, 0x36, 0x30, 0x34, 0x32, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x34, 0x39, 0x31, 0x35, 0x32, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x36, 0x31, 0x34, 0x34, 0x38, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x36, 0x32, 0x34, 0x37, 0x32, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x36, 0x32, 0x36, 0x30, 0x30, 0x22, 0x3A, 0xF4, 0xB0, 0x22, 0x32, 0x33, 0x37, 0x33, 0x39, 0x22, 0x2C, 0x32, 0x34, 0x34, 0x0E, 0x00, 0x00, 0xF4, 0x00, 0x00, 0x0D, 0x00, 0x14, 0x0B, 0x00, 0xF9, 0xC0, 0xB0, 0x22, 0x33, 0x32, 0x37, 0x36, 0x38, 0x22, 0x0D, 0x29]
+);
+
+screenbytes_h = new Uint8Array(
+[0x13, 0x00, 0x00, 0x03, 0x53, 0x43, 0x52, 0x45, 0x45, 0x4E, 0x20, 0x20, 0x20, 0x20, 0x00, 0x1B, 0x00, 0x40, 0x00, 0x80, 0xD4, 0x02, 0x1B, 0xFF]
+);
+
+
+//alert (loaderbytes[10]);
+
+// recordatorios...
+//   ventrypoint.value = "24320"; // bytes 91 a 95 y 191 a 195
+//   vmapaddress.value = "49152"; // bytes 117 a 121
+//   vtilesetaddress.value = "63232"; // bytes 130 a 134
+//   vtilesetattraddress.value = "65280"; // bytes 143 a 147
+//   vspritesetaddress.value = "60160"; // bytes 156 a 160
+// programname // bytes 4 al 13
+
+ //var ventrypoint = document.getElementById("entrypoint");
+ //var vmapaddress = document.getElementById("mapaddress");
+ //var vtilesetaddress = document.getElementById("tilesetaddress");
+ //var vtilesetattraddress = document.getElementById("tilesetattraddress");
+ //var vspritesetaddress = document.getElementById("spritesetaddress");
+
+
+
+
+straux = document.getElementById("programname").value;
+
+
+for (aux1 = 0; aux1 < 10; aux1++) {
+  if (aux1 < straux.length) {
+    loaderbytes[aux1 + 4] = straux.charCodeAt(aux1);
+  } else {
+    loaderbytes[aux1 + 4] = 32;
+  }
+}
+
+straux = document.getElementById("entrypoint").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 91] = straux.charCodeAt(aux1);
+  loaderbytes[aux1 + 191] = straux.charCodeAt(aux1);
+ }
+
+straux = document.getElementById("mapaddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 117] = straux.charCodeAt(aux1);
+}
+
+
+straux = document.getElementById("tilesetaddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 130] = straux.charCodeAt(aux1);
+}
+
+
+straux = document.getElementById("tilesetattraddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 143] = straux.charCodeAt(aux1);
+}
+
+
+straux = document.getElementById("spritesetaddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 156] = straux.charCodeAt(aux1);
+}
+
+
+var checksum = 0;
+
+for (aux1 = 2; aux1 < 20; aux1++) {
+  checksum = checksum ^ loaderbytes[aux1];
+}
+
+loaderbytes[20] = checksum
+
+checksum = 0;
+
+
+for (aux1 = 22; aux1 < (loaderbytes.length - 1); aux1++) {
+  checksum = checksum ^ loaderbytes[aux1];
+}
+
+loaderbytes[aux1] = checksum;
+
+
+
+checksum = 0xff
+
+screenbytes = new Uint8Array(24 + 6912 + 1);
+screenbytes.set(screenbytes_h);
+
+for (aux1 = 0; aux1 < 6912; aux1++) {
+  checksum = arrscreen[aux1] ^ checksum;
+  screenbytes[24 + aux1] = arrscreen[aux1];
+}
+
+screenbytes[24 + aux1] = checksum;
+
+
+var fullfile = new Uint8Array(screenbytes.length + loaderbytes.length);
+fullfile.set(loaderbytes);
+fullfile.set(screenbytes, loaderbytes.length);
+
+
+
+
+
+    var filename = "loader.tap";
+
+    //const blob = new Blob([loaderbytes], {type: 'application/octet-stream'});
+const blob = new Blob([fullfile], {type: 'application/octet-stream'});
+//const blob = new Blob([screenbytes], {type: 'application/octet-stream'});
+
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;        
+        document.body.appendChild(elem);
+        elem.click();        
+        document.body.removeChild(elem);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+} else {
+
+
+
+
+// recordatorios... todos -5 (??)
+//   ventrypoint.value = "24320"; // bytes 91 a 95 y 191 a 195
+//   vmapaddress.value = "49152"; // bytes 117 a 121
+//   vtilesetaddress.value = "63232"; // bytes 130 a 134
+//   vtilesetattraddress.value = "65280"; // bytes 143 a 147
+//   vspritesetaddress.value = "60160"; // bytes 156 a 160
+// programname // bytes 4 al 13
+
+
+
+loaderbytes = new Uint8Array(
+[0x13, 0x00, 0x00, 0x00, 0x63, 0x61, 0x72, 0x67, 0x61, 0x64, 0x6F, 0x72, 0x73, 0x69, 0xA9, 0x00, 0x0A, 0x00, 0xA9, 0x00, 0x1F, 0xAB, 0x00, 0xFF, 0x00, 0x0A, 0x96, 0x00, 0xDA, 0x30, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0xE7, 0x30, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0xD9, 0x30, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3A, 0xFD, 0xB0, 0x22, 0x32, 0x34, 0x33, 0x31, 0x39, 0x22, 0x3A, 0xF4, 0xB0, 0x22, 0x32, 0x33, 0x37, 0x33, 0x39, 0x22, 0x2C, 0xAF, 0x22, 0x6F, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x33, 0x32, 0x37, 0x36, 0x38, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x34, 0x36, 0x30, 0x34, 0x32, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x34, 0x39, 0x31, 0x35, 0x32, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x36, 0x31, 0x34, 0x34, 0x38, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x36, 0x32, 0x34, 0x37, 0x32, 0x22, 0x3A, 0xEF, 0x22, 0x22, 0xAF, 0xB0, 0x22, 0x36, 0x32, 0x36, 0x30, 0x30, 0x22, 0x3A, 0xF4, 0xB0, 0x22, 0x32, 0x33, 0x37, 0x33, 0x39, 0x22, 0x2C, 0x32, 0x34, 0x34, 0x0E, 0x00, 0x00, 0xF4, 0x00, 0x00, 0x0D, 0x00, 0x14, 0x0B, 0x00, 0xF9, 0xC0, 0xB0, 0x22, 0x33, 0x32, 0x37, 0x36, 0x38, 0x22, 0x0D, 0x5B]
+);
+
+
+straux = document.getElementById("programname").value;
+
+
+for (aux1 = 0; aux1 < 10; aux1++) {
+  if (aux1 < straux.length) {
+    loaderbytes[aux1 + 4] = straux.charCodeAt(aux1);
+  } else {
+    loaderbytes[aux1 + 4] = 32;
+  }
+}
+
+straux = document.getElementById("entrypoint").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 91 - 5] = straux.charCodeAt(aux1);
+  loaderbytes[aux1 + 191 - 5] = straux.charCodeAt(aux1);
+ }
+
+straux = document.getElementById("mapaddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 117 - 5] = straux.charCodeAt(aux1);
+}
+
+
+straux = document.getElementById("tilesetaddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 130 - 5] = straux.charCodeAt(aux1);
+}
+
+
+straux = document.getElementById("tilesetattraddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 143 - 5] = straux.charCodeAt(aux1);
+}
+
+
+straux = document.getElementById("spritesetaddress").value;
+
+for (aux1 = 0; aux1 < 5; aux1++) {
+  loaderbytes[aux1 + 156 - 5] = straux.charCodeAt(aux1);
+}
+
+
+var checksum = 0;
+
+for (aux1 = 2; aux1 < 20; aux1++) {
+  checksum = checksum ^ loaderbytes[aux1];
+}
+
+loaderbytes[20] = checksum
+
+checksum = 0;
+
+
+for (aux1 = 22; aux1 < (loaderbytes.length - 1); aux1++) {
+  checksum = checksum ^ loaderbytes[aux1];
+}
+
+loaderbytes[aux1] = checksum;
+
+
+
+
+
+  var filename = "loader.tap";
+
+    const blob = new Blob([loaderbytes], {type: 'application/octet-stream'});
+
+
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;        
+        document.body.appendChild(elem);
+        elem.click();        
+        document.body.removeChild(elem);
+    }
+
+
+
+
+
+
+
+}
+
+
+
+}
+
+
+function downloadtaploader() {
+
+
+if (document.getElementById("screenfile").value.length>0) {
+
+
+
+var fff = document.getElementById("screenfile").files[0];
+
+
+const sreader = new FileReader();
+sreader.onload = function(e) {
+
+var uarr;
+
+uarr = new Uint8Array(e.target.result);
+
+
+prepararDescargaTap(uarr);
+
+};
+sreader.readAsArrayBuffer(fff);
+
+
+
+
+} else
+{
+prepararDescargaTap([]);
+
+}
+
+
+
+
+}
+
+
+
+function getinitfunc() {
+  var scode;
+
+
+
+
+
+  scode = "sub init()\n  ink 7\n  ks_kraspInit()\n  'Entry point: " + document.getElementById("entrypoint").value + "\n  kv_spraddr = " + document.getElementById("spritesetaddress").value + "\n  kv_mapaddr = " + document.getElementById("mapaddress").value + "\n  kv_tilesetaddr = " + document.getElementById("tilesetaddress").value + "\n  kv_tilesetattraddr = " + document.getElementById("tilesetattraddress").value + "\nend sub\n";
+
+  alert ("Exported to clipboard");
+
+  navigator.clipboard.writeText(scode);
+}
+
+
+
+</script>
+
+
+</html>
